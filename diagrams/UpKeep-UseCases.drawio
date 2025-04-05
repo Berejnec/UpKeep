@@ -1,0 +1,94 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36" version="26.1.2">
+  <diagram name="Page-1" id="xcGfWG3UVuoapguwsm1m">
+    <mxGraphModel grid="1" page="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="-qHJtycQtr3Dz5-sj4Bg-1" value="" style="whiteSpace=wrap;html=1;aspect=fixed;" vertex="1" parent="1">
+          <mxGeometry x="125" y="250" width="630" height="630" as="geometry" />
+        </mxCell>
+        <mxCell id="ELdl0wSaleDAwUZtzIcO-26" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="-qHJtycQtr3Dz5-sj4Bg-3" target="ELdl0wSaleDAwUZtzIcO-2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ELdl0wSaleDAwUZtzIcO-27" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="-qHJtycQtr3Dz5-sj4Bg-3" target="ELdl0wSaleDAwUZtzIcO-3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ELdl0wSaleDAwUZtzIcO-29" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="-qHJtycQtr3Dz5-sj4Bg-3" target="ELdl0wSaleDAwUZtzIcO-20">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ELdl0wSaleDAwUZtzIcO-31" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="-qHJtycQtr3Dz5-sj4Bg-3" target="ELdl0wSaleDAwUZtzIcO-1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="-qHJtycQtr3Dz5-sj4Bg-3" value="Reporter" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" vertex="1" parent="1">
+          <mxGeometry x="60" y="450" width="30" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="ELdl0wSaleDAwUZtzIcO-33" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="-qHJtycQtr3Dz5-sj4Bg-4" target="ELdl0wSaleDAwUZtzIcO-5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ELdl0wSaleDAwUZtzIcO-34" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="-qHJtycQtr3Dz5-sj4Bg-4" target="ELdl0wSaleDAwUZtzIcO-6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ELdl0wSaleDAwUZtzIcO-35" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="-qHJtycQtr3Dz5-sj4Bg-4" target="ELdl0wSaleDAwUZtzIcO-7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ELdl0wSaleDAwUZtzIcO-36" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="-qHJtycQtr3Dz5-sj4Bg-4" target="ELdl0wSaleDAwUZtzIcO-22">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ELdl0wSaleDAwUZtzIcO-37" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="-qHJtycQtr3Dz5-sj4Bg-4" target="ELdl0wSaleDAwUZtzIcO-21">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="-qHJtycQtr3Dz5-sj4Bg-4" value="Admin/&lt;div&gt;Municipality&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;/div&gt;" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" vertex="1" parent="1">
+          <mxGeometry x="780" y="450" width="30" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="ELdl0wSaleDAwUZtzIcO-1" value="Report a maintenance issue (with photo, description, location)" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="200" y="320" width="140" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="ELdl0wSaleDAwUZtzIcO-2" value="View reported issues on map or list" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="210" y="420" width="120" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="ELdl0wSaleDAwUZtzIcO-3" value="Upvote issues to prioritize them" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="210" y="520" width="120" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="ELdl0wSaleDAwUZtzIcO-4" value="Track status of submitted issues" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="210" y="610" width="120" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="ELdl0wSaleDAwUZtzIcO-5" value="View all reported issues" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="570" y="320" width="120" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="ELdl0wSaleDAwUZtzIcO-6" value="&lt;li class=&quot;&quot; data-end=&quot;622&quot; data-start=&quot;587&quot;&gt;&lt;p class=&quot;&quot; data-end=&quot;622&quot; data-start=&quot;590&quot;&gt;Filter issues by category/status&lt;/p&gt;&lt;/li&gt;&lt;li class=&quot;&quot; data-end=&quot;672&quot; data-start=&quot;623&quot;&gt;&lt;br&gt;&lt;p class=&quot;&quot; data-end=&quot;672&quot; data-start=&quot;626&quot;&gt;&lt;/p&gt;&lt;/li&gt;" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="570" y="410" width="120" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="ELdl0wSaleDAwUZtzIcO-7" value="Update issue status (e.g., In Progress, Fixed)" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="570" y="505" width="120" height="85" as="geometry" />
+        </mxCell>
+        <mxCell id="ELdl0wSaleDAwUZtzIcO-8" value="(OPTIONAL)&lt;br&gt;Get notified when their report is updated&lt;div&gt;&lt;br/&gt;&lt;/div&gt;" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="210" y="790" width="120" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="ELdl0wSaleDAwUZtzIcO-9" value="Register / Login with Google Provider" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="380" y="260" width="120" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="ELdl0wSaleDAwUZtzIcO-11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="ELdl0wSaleDAwUZtzIcO-9" target="-qHJtycQtr3Dz5-sj4Bg-3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ELdl0wSaleDAwUZtzIcO-12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="ELdl0wSaleDAwUZtzIcO-9" target="-qHJtycQtr3Dz5-sj4Bg-4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ELdl0wSaleDAwUZtzIcO-20" value="Edit/delete own reports" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="210" y="700" width="120" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="ELdl0wSaleDAwUZtzIcO-21" value="&lt;li class=&quot;&quot; data-end=&quot;712&quot; data-start=&quot;673&quot;&gt;&lt;p class=&quot;&quot; data-end=&quot;712&quot; data-start=&quot;676&quot;&gt;(OPTIONAL)&amp;nbsp; &amp;nbsp; &amp;nbsp;Assign reports to workers&lt;/p&gt;&lt;/li&gt;&lt;li class=&quot;&quot; data-end=&quot;751&quot; data-start=&quot;713&quot;&gt;&lt;br&gt;&lt;p class=&quot;&quot; data-end=&quot;751&quot; data-start=&quot;716&quot;&gt;&lt;/p&gt;&lt;/li&gt;" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="570" y="710" width="120" height="85" as="geometry" />
+        </mxCell>
+        <mxCell id="ELdl0wSaleDAwUZtzIcO-22" value="Respond to user (comment or update)" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="570" y="610" width="120" height="85" as="geometry" />
+        </mxCell>
+        <mxCell id="ELdl0wSaleDAwUZtzIcO-28" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.638;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="-qHJtycQtr3Dz5-sj4Bg-3" target="ELdl0wSaleDAwUZtzIcO-4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ELdl0wSaleDAwUZtzIcO-30" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.613;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="-qHJtycQtr3Dz5-sj4Bg-3" target="ELdl0wSaleDAwUZtzIcO-8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

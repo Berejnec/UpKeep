@@ -21,7 +21,6 @@ const TabsLayout = () => {
   }, []);
 
   if (!session?.user) {
-    console.log("cica nu e session dar chair nu e: ", session);
     // return <Redirect href={"/sign-up"} />;
   }
 

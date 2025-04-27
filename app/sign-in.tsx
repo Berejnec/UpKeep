@@ -11,33 +11,32 @@ import {
   View,
 } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
-import { Colors } from "@/constants/Colors";
 
-export default function SignUpScreen() {
+export default function SignInScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  async function signUpWithEmail() {
+  async function signInWithEmail() {
     setLoading(true);
-    const { error } = await supabase.auth.signUp({
+    const { error } = await supabase.auth.signInWithPassword({
       email: email,
       password: password,
     });
 
-    if (error) Alert.alert("Sign Up Error", error.message);
-    if (!error) {
-      Alert.alert("Success", "Please check your inbox for email verification!");
-      router.push("/sign-in");
-    }
+    if (error) Alert.alert("Sign In Error", error.message);
     setLoading(false);
+
+    if (!error) {
+      router.push("/(tabs)");
+    }
   }
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Sign Up to UpKeep</Text>
+        <Text style={styles.title}>Sign In to UpKeep</Text>
       </View>
       <View style={styles.formContainer}>
         <Input
@@ -60,18 +59,18 @@ export default function SignUpScreen() {
         />
         <TouchableOpacity
           style={styles.button}
-          onPress={signUpWithEmail}
+          onPress={signInWithEmail}
           disabled={loading}
         >
           {loading ? (
             <ActivityIndicator color="white" />
           ) : (
-            <Text style={styles.buttonText}>Sign Up</Text>
+            <Text style={styles.buttonText}>Sign In</Text>
           )}
         </TouchableOpacity>
       </View>
-      <TouchableOpacity onPress={() => router.push("/sign-in")}>
-        <Text style={styles.signInLink}>Already have an account? Sign In</Text>
+      <TouchableOpacity onPress={() => router.push("/sign-up")}>
+        <Text style={styles.signUpLink}>Don't have an account? Sign Up</Text>
       </TouchableOpacity>
     </View>
   );
@@ -107,7 +106,7 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   button: {
-    backgroundColor: Colors.light.primaryColor,
+    backgroundColor: "#007bff",
     paddingVertical: 12,
     borderRadius: 6,
     alignItems: "center",
@@ -118,7 +117,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
   },
-  signInLink: {
+  signUpLink: {
     marginTop: 20,
     textAlign: "center",
     color: "#007bff",

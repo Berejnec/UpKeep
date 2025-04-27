@@ -25,7 +25,7 @@ export default function HomeScreen() {
       <Button
         onPress={async () => {
           await supabase.auth.signOut();
-          router.replace("/sign-up");
+          router.replace("/sign-in");
         }}
       >
         Sign out

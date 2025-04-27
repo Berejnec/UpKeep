@@ -29,7 +29,7 @@ export default function SignInScreen() {
     setLoading(false);
 
     if (!error) {
-      router.push("/(tabs)");
+      router.push("/(tabs)/issues");
     }
   }
 

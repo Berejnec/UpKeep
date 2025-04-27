@@ -1,11 +1,10 @@
 import { Colors } from "@/constants/Colors";
 import { supabase } from "@/utils/supabase";
-import { faExclamation } from "@fortawesome/free-solid-svg-icons/faExclamation";
-import { faHouse } from "@fortawesome/free-solid-svg-icons/faHouse";
+import { faTriangleExclamation } from "@fortawesome/free-solid-svg-icons/faTriangleExclamation";
 import { faMap } from "@fortawesome/free-solid-svg-icons/faMap";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { Session } from "@supabase/supabase-js";
-import { Redirect, Tabs } from "expo-router";
+import { Tabs } from "expo-router";
 import { useEffect, useState } from "react";
 
 const TabsLayout = () => {
@@ -29,27 +28,33 @@ const TabsLayout = () => {
       screenOptions={{
         headerShown: true,
         headerStyle: {
-          backgroundColor: Colors.light.primaryColor,
+          backgroundColor: "#168676",
         },
-        tabBarActiveTintColor: "lightgreen",
+        tabBarActiveTintColor: "#4DFFCD",
         tabBarInactiveTintColor: "white",
         headerTintColor: "white",
         tabBarStyle: {
-          backgroundColor: Colors.light.primaryColor,
+          backgroundColor: "#168676",
+          borderTopWidth: 0,
         },
       }}
     >
       <Tabs.Screen
-        name="index"
+        name="issues"
         options={{
-          title: "Home",
+          title: "Issues",
           animation: "fade",
           headerTitleAlign: "left",
           tabBarIcon: ({ color }: { color: string }) => (
-            <FontAwesomeIcon icon={faHouse} size={28} color={color} />
+            <FontAwesomeIcon
+              icon={faTriangleExclamation}
+              size={28}
+              color={color}
+            />
           ),
         }}
       />
+
       <Tabs.Screen
         name="map"
         options={{
@@ -58,17 +63,6 @@ const TabsLayout = () => {
           headerTitleAlign: "left",
           tabBarIcon: ({ color }: { color: string }) => (
             <FontAwesomeIcon icon={faMap} size={28} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="issues"
-        options={{
-          title: "Issues",
-          animation: "fade",
-          headerTitleAlign: "left",
-          tabBarIcon: ({ color }: { color: string }) => (
-            <FontAwesomeIcon icon={faExclamation} size={28} color={color} />
           ),
         }}
       />

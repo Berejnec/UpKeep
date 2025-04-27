@@ -1,3 +1,4 @@
+import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import {
   DarkTheme,
@@ -43,6 +44,16 @@ export default function RootLayout() {
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="sign-in" options={{ headerShown: false }} />
         <Stack.Screen name="sign-up" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="issue-details/[id]"
+          options={{
+            title: "Issue Details",
+            headerStyle: {
+              backgroundColor: Colors.light.primaryColor,
+            },
+            headerTintColor: "white",
+          }}
+        />
       </Stack>
     </ThemeProvider>
   );

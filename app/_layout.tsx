@@ -16,7 +16,7 @@ SplashScreen.preventAutoHideAsync();
 export { ErrorBoundary } from "expo-router";
 
 export const unstable_settings = {
-  initialRouteName: "(tabs)",
+  initialRouteName: "(tabs)/issues",
 };
 
 export default function RootLayout() {
@@ -44,6 +44,16 @@ export default function RootLayout() {
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="sign-in" options={{ headerShown: false }} />
         <Stack.Screen name="sign-up" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="new-issue/index"
+          options={{
+            title: "Add a new Issue",
+            headerStyle: {
+              backgroundColor: Colors.light.primaryColor,
+            },
+            headerTintColor: "white",
+          }}
+        />
         <Stack.Screen
           name="issue-details/[id]"
           options={{

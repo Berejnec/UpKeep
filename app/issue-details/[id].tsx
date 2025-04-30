@@ -82,6 +82,35 @@ export default function IssueDetailsScreen() {
           {issue.title}
         </Text>
 
+        {issue.latitude && issue.longitude ? (
+          <View style={styles.mapContainer}>
+            <MapView
+              style={styles.map}
+              initialRegion={{
+                latitude: issue.latitude,
+                longitude: issue.longitude,
+                latitudeDelta: 0.01,
+                longitudeDelta: 0.01,
+              }}
+            >
+              <Marker
+                coordinate={{
+                  latitude: issue.latitude,
+                  longitude: issue.longitude,
+                }}
+                title={issue.title}
+                description={issue.address}
+              />
+            </MapView>
+          </View>
+        ) : (
+          <Text style={styles.noLocation}>No location data available</Text>
+        )}
+        <Text h4 style={styles.sectionTitle}>
+          Description
+        </Text>
+        <Text style={styles.description}>{issue.description}</Text>
+
         <View style={styles.detailRow}>
           <Text style={styles.label}>Created by:</Text>
           <Text style={styles.value}>{issue.owner_email || "Loading..."}</Text>
@@ -111,39 +140,6 @@ export default function IssueDetailsScreen() {
           <Text style={styles.label}>Last Updated:</Text>
           <Text style={styles.value}>{formatDateTime(issue.updated_at)}</Text>
         </View>
-
-        <Text h4 style={styles.sectionTitle}>
-          Description
-        </Text>
-        <Text style={styles.description}>{issue.description}</Text>
-
-        <Text h4 style={styles.sectionTitle}>
-          Location
-        </Text>
-        {issue.latitude && issue.longitude ? (
-          <View style={styles.mapContainer}>
-            <MapView
-              style={styles.map}
-              initialRegion={{
-                latitude: issue.latitude,
-                longitude: issue.longitude,
-                latitudeDelta: 0.01,
-                longitudeDelta: 0.01,
-              }}
-            >
-              <Marker
-                coordinate={{
-                  latitude: issue.latitude,
-                  longitude: issue.longitude,
-                }}
-                title={issue.title}
-                description={issue.address}
-              />
-            </MapView>
-          </View>
-        ) : (
-          <Text style={styles.noLocation}>No location data available</Text>
-        )}
       </ScrollView>
     </View>
   );
@@ -181,13 +177,12 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     color: "#168676",
-    marginTop: 20,
-    marginBottom: 10,
   },
   description: {
     fontSize: 16,
     lineHeight: 24,
     color: "#495057",
+    marginBottom: 24,
   },
   mapContainer: {
     borderRadius: 12,
@@ -198,7 +193,7 @@ const styles = StyleSheet.create({
     elevation: 5,
     backgroundColor: "white",
     marginVertical: 8,
-    marginBottom: 32,
+    marginBottom: 16,
   },
   map: {
     height: 250,

@@ -1,11 +1,14 @@
+import { Colors } from "@/constants/Colors";
 import { formatDateTime } from "@/utils/date";
 import { supabase } from "@/utils/supabase";
+import { Octicons } from "@expo/vector-icons";
 import { Card } from "@rneui/themed";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
+  SafeAreaView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -70,17 +73,29 @@ const IssuesScreen = () => {
     );
   }
 
+  const handlePress = () => {
+    router.push("/new-issue");
+  };
+
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
+      <TouchableOpacity style={styles.floatingButton} onPress={handlePress}>
+        <Octicons name="diff-added" size={24} color="white" />
+      </TouchableOpacity>
       <FlatList
         data={issues}
-        renderItem={({ item }) => (
+        renderItem={({ item, index }) => (
           <TouchableOpacity
             onPress={() => handleIssuePress(item.id)}
             activeOpacity={0.7}
             style={styles.pressableCard}
           >
-            <Card containerStyle={styles.card}>
+            <Card
+              containerStyle={{
+                ...styles.card,
+                marginBottom: index === issues.length - 1 ? 16 : 0,
+              }}
+            >
               <Text style={styles.title}>{item.title}</Text>
               <Text style={styles.description} numberOfLines={2}>
                 {item.description}
@@ -94,7 +109,7 @@ const IssuesScreen = () => {
         keyExtractor={(item) => item.id}
         style={styles.list}
       />
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -105,6 +120,7 @@ const styles = StyleSheet.create({
   },
   list: {
     flex: 1,
+    zIndex: 0,
   },
   card: {
     backgroundColor: "#ffffff",
@@ -160,6 +176,23 @@ const styles = StyleSheet.create({
   },
   pressableCard: {
     opacity: 0.9,
+  },
+  floatingButton: {
+    backgroundColor: Colors.light.primaryColor,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    justifyContent: "center",
+    alignItems: "center",
+    position: "absolute",
+    bottom: 40,
+    right: 30,
+    elevation: 5,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    zIndex: 1,
   },
 });
 

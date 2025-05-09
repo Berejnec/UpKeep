@@ -1,7 +1,7 @@
 import { Colors } from "@/constants/Colors";
 import { formatDateTime } from "@/utils/date";
 import { supabase } from "@/utils/supabase";
-import { Octicons } from "@expo/vector-icons";
+import { FontAwesome, Octicons } from "@expo/vector-icons";
 import { Card } from "@rneui/themed";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
@@ -10,10 +10,10 @@ import {
   FlatList,
   SafeAreaView,
   StyleSheet,
-  Text,
   TouchableOpacity,
   View,
 } from "react-native";
+import { Text } from "@rneui/themed";
 
 interface Issue {
   id: string;
@@ -59,7 +59,7 @@ const IssuesScreen = () => {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#007BFF" />
+        <ActivityIndicator size="large" color={Colors.light.primaryColor} />
         <Text style={styles.loadingText}>Loading Issues...</Text>
       </View>
     );
@@ -79,6 +79,24 @@ const IssuesScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
+      <View
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          alignItems: "center",
+          gap: 16,
+          flexWrap: "wrap",
+          paddingTop: 16,
+        }}
+      >
+        <Text h4 style={styles.screenTitle}>
+          Reported Issues
+        </Text>
+        <TouchableOpacity>
+          <FontAwesome name="user-secret" size={24} color={"black"} />
+        </TouchableOpacity>
+      </View>
+
       <TouchableOpacity style={styles.floatingButton} onPress={handlePress}>
         <Octicons name="diff-added" size={24} color="white" />
       </TouchableOpacity>
@@ -134,6 +152,12 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
+  },
+  screenTitle: {
+    fontWeight: "bold",
+    color: "#168676",
+    paddingLeft: 16,
+    marginBottom: 8,
   },
   title: {
     fontSize: 18,

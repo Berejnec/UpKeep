@@ -1,9 +1,16 @@
 import { formatDateTime } from "@/utils/date";
 import { supabase } from "@/utils/supabase";
+import { FontAwesome } from "@expo/vector-icons";
 import { Text } from "@rneui/themed";
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
-import { ActivityIndicator, ScrollView, StyleSheet, View } from "react-native";
+import {
+  ActivityIndicator,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import MapView, { Marker } from "react-native-maps";
 
 interface Issue {
@@ -38,8 +45,8 @@ export default function IssueDetailsScreen() {
         if (issueError) throw issueError;
 
         const { data: user, error: userError } = await supabase
-          .from("user_profiles")
-          .select("email")
+          .from("profiles")
+          .select("email, role")
           .eq("id", issue.owner_id)
           .single();
 
@@ -78,9 +85,22 @@ export default function IssueDetailsScreen() {
   return (
     <View style={styles.container}>
       <ScrollView style={styles.content}>
-        <Text h2 style={styles.title}>
-          {issue.title}
-        </Text>
+        <View
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 16,
+            flexWrap: "wrap",
+          }}
+        >
+          <Text h2 style={styles.title}>
+            {issue.title}
+          </Text>
+          <TouchableOpacity>
+            <FontAwesome name="star" size={24} color={"black"} />
+          </TouchableOpacity>
+        </View>
 
         {issue.latitude && issue.longitude ? (
           <View style={styles.mapContainer}>
@@ -160,7 +180,6 @@ const styles = StyleSheet.create({
   },
   title: {
     color: "#168676",
-    marginBottom: 20,
   },
   detailRow: {
     flexDirection: "row",

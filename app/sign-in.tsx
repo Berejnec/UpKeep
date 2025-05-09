@@ -11,6 +11,7 @@ import {
   View,
 } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
+import { Colors } from "@/constants/Colors";
 
 export default function SignInScreen() {
   const [email, setEmail] = useState("");
@@ -29,7 +30,7 @@ export default function SignInScreen() {
     setLoading(false);
 
     if (!error) {
-      router.push("/(tabs)/issues");
+      router.replace("/(tabs)/issues");
     }
   }
 
@@ -106,7 +107,7 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   button: {
-    backgroundColor: "#007bff",
+    backgroundColor: Colors.light.primaryColor,
     paddingVertical: 12,
     borderRadius: 6,
     alignItems: "center",
@@ -120,7 +121,8 @@ const styles = StyleSheet.create({
   signUpLink: {
     marginTop: 20,
     textAlign: "center",
-    color: "#007bff",
+    color: Colors.light.primaryColor,
     fontSize: 16,
+    fontWeight: "bold",
   },
 });

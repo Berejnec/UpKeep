@@ -6,6 +6,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { Session } from "@supabase/supabase-js";
 import { Tabs } from "expo-router";
 import { useEffect, useState } from "react";
+import { FontAwesome } from "@expo/vector-icons";
 
 const TabsLayout = () => {
   const [session, setSession] = useState<Session | null>(null);
@@ -26,7 +27,7 @@ const TabsLayout = () => {
   return (
     <Tabs
       screenOptions={{
-        headerShown: true,
+        headerShown: false,
         headerStyle: {
           backgroundColor: "#168676",
         },
@@ -63,6 +64,18 @@ const TabsLayout = () => {
           headerTitleAlign: "left",
           tabBarIcon: ({ color }: { color: string }) => (
             <FontAwesomeIcon icon={faMap} size={28} color={color} />
+          ),
+        }}
+      />
+
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: "Profile",
+          animation: "fade",
+          headerTitleAlign: "left",
+          tabBarIcon: ({ color }: { color: string }) => (
+            <FontAwesome name="user-circle-o" size={28} color={color} />
           ),
         }}
       />

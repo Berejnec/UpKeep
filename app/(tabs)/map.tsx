@@ -1,3 +1,4 @@
+import { Colors } from "@/constants/Colors";
 import { supabase } from "@/utils/supabase";
 import { Text } from "@rneui/themed";
 import { useRouter } from "expo-router";
@@ -83,8 +84,8 @@ const MapScreen = () => {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#007BFF" />
-        <Text style={styles.loadingText}>Loading Issues...</Text>
+        <ActivityIndicator size="large" color={Colors.light.primaryColor} />
+        <Text style={styles.loadingText}>Loading Map...</Text>
       </View>
     );
   }

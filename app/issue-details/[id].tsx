@@ -6,6 +6,7 @@ import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
+  Image,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
@@ -24,6 +25,7 @@ interface Issue {
   longitude: number;
   created_at: string;
   updated_at: string;
+  photo_url: string | null;
   owner_id: string;
   owner_email?: string;
 }
@@ -131,6 +133,19 @@ export default function IssueDetailsScreen() {
         </Text>
         <Text style={styles.description}>{issue.description}</Text>
 
+        {issue?.photo_url && (
+          <Image
+            source={{ uri: issue?.photo_url }}
+            style={{
+              width: "100%",
+              height: 300,
+              borderRadius: 8,
+              marginBottom: 12,
+            }}
+            resizeMode="cover"
+          />
+        )}
+
         <View style={styles.detailRow}>
           <Text style={styles.label}>Created by:</Text>
           <Text style={styles.value}>{issue.owner_email || "Loading..."}</Text>
@@ -169,9 +184,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#f8f9fa",
+    paddingBottom: 8,
   },
   content: {
-    padding: 16,
+    paddingHorizontal: 16,
+    marginTop: 16,
   },
   loadingContainer: {
     flex: 1,

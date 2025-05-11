@@ -17,6 +17,11 @@ import {
 } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import { z } from "zod";
+import * as ImagePicker from "expo-image-picker";
+import uuid from "react-native-uuid";
+import { Image } from "react-native";
+import { decode } from "base64-arraybuffer";
+import * as FileSystem from "expo-file-system";
 
 const addIssueSchema = z.object({
   title: z.string().min(5, "Title must be at least 5 characters"),
@@ -55,6 +60,7 @@ export default function AddNewIssueScreen() {
   const [mapRegion, setMapRegion] = useState<any>(null);
   const [locationLoading, setLocationLoading] = useState(false);
   const [session, setSession] = useState<Session | null>(null);
+  const [imageUri, setImageUri] = useState<string | null>(null);
 
   const getCurrentLocation = async () => {
     setLocationLoading(true);
@@ -112,15 +118,53 @@ export default function AddNewIssueScreen() {
     });
   };
 
-  useEffect(() => {
-    // getCurrentLocation();
-  }, []);
+  const pickImage = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: "images",
+      allowsEditing: true,
+      quality: 0.7,
+    });
+
+    if (!result.canceled && result.assets.length > 0) {
+      setImageUri(result.assets[0].uri);
+    }
+  };
+
+  const uploadImageToSupabase = async (uri: string) => {
+    const base64 = await FileSystem.readAsStringAsync(uri, {
+      encoding: "base64",
+    });
+    const filePath = `${uuid.v4()}.png`;
+    const contentType = "image/png";
+    const { error } = await supabase.storage
+      .from("avatars")
+      .upload(filePath, decode(base64), { contentType, upsert: true });
+
+    if (error) throw error;
+
+    const { data: publicUrlData } = supabase.storage
+      .from("avatars")
+      .getPublicUrl(filePath);
+
+    return publicUrlData?.publicUrl ?? null;
+  };
 
   const onSubmit = async (data: AddIssueFormValues) => {
     try {
-      const { error } = await supabase
-        .from("issues")
-        .insert([{ ...data, owner_id: session?.user.id }]);
+      let photoUrl: string | null = null;
+
+      if (imageUri) {
+        photoUrl = await uploadImageToSupabase(imageUri);
+      }
+
+      const { error } = await supabase.from("issues").insert([
+        {
+          ...data,
+          owner_id: session?.user.id,
+          photo_url: photoUrl,
+        },
+      ]);
+
       if (error) {
         console.error(error);
         Alert.alert("Error", "Failed to submit issue. Please try again.");
@@ -128,6 +172,7 @@ export default function AddNewIssueScreen() {
         Alert.alert("Success", "Issue reported successfully!");
         reset();
         setMapRegion(null);
+        setImageUri(null);
         router.push("/(tabs)/issues");
       }
     } catch (error) {
@@ -241,6 +286,27 @@ export default function AddNewIssueScreen() {
             />
           )}
         </MapView>
+
+        <TouchableOpacity
+          style={[styles.locationButton, { backgroundColor: "#6c757d" }]}
+          onPress={pickImage}
+        >
+          <Text style={styles.locationButtonText}>
+            {imageUri ? "Change Photo" : "Upload Photo"}
+          </Text>
+        </TouchableOpacity>
+
+        {imageUri && (
+          <Image
+            source={{ uri: imageUri }}
+            style={{
+              width: "100%",
+              height: 200,
+              marginTop: 10,
+              borderRadius: 6,
+            }}
+          />
+        )}
 
         <TouchableOpacity
           style={styles.submitButton}

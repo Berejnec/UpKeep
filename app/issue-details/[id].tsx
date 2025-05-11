@@ -127,7 +127,7 @@ export default function IssueDetailsScreen() {
           <Text style={styles.noLocation}>No location data available</Text>
         )}
         <Text h4 style={styles.sectionTitle}>
-          Description
+          Issue Details
         </Text>
         <Text style={styles.description}>{issue.description}</Text>
 
@@ -201,7 +201,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 24,
     color: "#495057",
-    marginBottom: 24,
+    marginBottom: 18,
   },
   mapContainer: {
     borderRadius: 12,

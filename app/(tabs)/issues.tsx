@@ -2,7 +2,7 @@ import { Colors } from "@/constants/Colors";
 import { formatDateTime } from "@/utils/date";
 import { supabase } from "@/utils/supabase";
 import { FontAwesome, Octicons } from "@expo/vector-icons";
-import { Card } from "@rneui/themed";
+import { Button, Card, Text } from "@rneui/themed";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
@@ -13,7 +13,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { Text } from "@rneui/themed";
 
 interface Issue {
   id: string;
@@ -25,45 +24,58 @@ interface Issue {
 const IssuesScreen = () => {
   const [issues, setIssues] = useState<Issue[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showAllIssues, setShowAllIssues] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
     const fetchIssues = async () => {
+      setLoading(true);
       try {
-        const { data: fetchedIssues, error } = await supabase
+        let query = supabase
           .from("issues")
           .select("*")
           .order("created_at", { ascending: false });
 
+        if (!showAllIssues) {
+          const {
+            data: { user },
+          } = await supabase.auth.getUser();
+
+          if (user) {
+            query = query.eq("owner_id", user.id);
+          } else {
+            console.warn("User is not logged in. Cannot fetch owned issues.");
+            setIssues([]);
+            setLoading(false);
+            return;
+          }
+        }
+
+        const { data: fetchedIssues, error } = await query;
+
         if (error) {
           console.error("Error fetching issues:", error);
+          setIssues([]);
           return;
         }
+
         if (fetchedIssues) {
           setIssues(fetchedIssues);
         }
       } catch (error) {
         console.error("Error fetching issues:", error);
+        setIssues([]);
       } finally {
         setLoading(false);
       }
     };
 
     fetchIssues();
-  }, []);
+  }, [showAllIssues]);
 
   const handleIssuePress = (issueId: string) => {
     router.push(`/issue-details/${issueId}`);
   };
-
-  if (loading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={Colors.light.primaryColor} />
-        <Text style={styles.loadingText}>Loading Issues...</Text>
-      </View>
-    );
-  }
 
   if (!issues || issues.length === 0) {
     return (
@@ -87,46 +99,64 @@ const IssuesScreen = () => {
           gap: 16,
           flexWrap: "wrap",
           paddingTop: 16,
+          marginBottom: 8,
         }}
       >
         <Text h4 style={styles.screenTitle}>
           Reported Issues
         </Text>
-        <TouchableOpacity>
-          <FontAwesome name="user-secret" size={24} color={"black"} />
-        </TouchableOpacity>
+        <Button
+          icon={<FontAwesome name="user" size={24} color={"white"} />}
+          buttonStyle={{
+            backgroundColor: Colors.light.primaryColor,
+            borderRadius: 12,
+          }}
+          onPress={() => setShowAllIssues((prev) => !prev)}
+        >
+          <Text style={{ color: "white", marginLeft: 8 }}>
+            {showAllIssues ? "My issues" : "All issues"}
+          </Text>
+        </Button>
       </View>
+
+      {loading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={Colors.light.primaryColor} />
+          <Text style={styles.loadingText}>Loading Issues...</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={issues}
+          renderItem={({ item, index }) => (
+            <TouchableOpacity
+              onPress={() => handleIssuePress(item.id)}
+              activeOpacity={0.7}
+              style={styles.pressableCard}
+            >
+              <Card
+                containerStyle={{
+                  ...styles.card,
+                  marginBottom: index === issues.length - 1 ? 16 : 0,
+                }}
+              >
+                <Text style={styles.title}>{item.title}</Text>
+                <Text style={styles.description} numberOfLines={2}>
+                  {item.description}
+                </Text>
+                <Text style={styles.date}>
+                  Reported at {formatDateTime(item.created_at)}
+                </Text>
+              </Card>
+            </TouchableOpacity>
+          )}
+          keyExtractor={(item) => item.id}
+          style={styles.list}
+        />
+      )}
 
       <TouchableOpacity style={styles.floatingButton} onPress={handlePress}>
         <Octicons name="diff-added" size={24} color="white" />
       </TouchableOpacity>
-      <FlatList
-        data={issues}
-        renderItem={({ item, index }) => (
-          <TouchableOpacity
-            onPress={() => handleIssuePress(item.id)}
-            activeOpacity={0.7}
-            style={styles.pressableCard}
-          >
-            <Card
-              containerStyle={{
-                ...styles.card,
-                marginBottom: index === issues.length - 1 ? 16 : 0,
-              }}
-            >
-              <Text style={styles.title}>{item.title}</Text>
-              <Text style={styles.description} numberOfLines={2}>
-                {item.description}
-              </Text>
-              <Text style={styles.date}>
-                Reported at {formatDateTime(item.created_at)}
-              </Text>
-            </Card>
-          </TouchableOpacity>
-        )}
-        keyExtractor={(item) => item.id}
-        style={styles.list}
-      />
     </SafeAreaView>
   );
 };

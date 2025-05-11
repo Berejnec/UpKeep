@@ -1,4 +1,5 @@
 import { Colors } from "@/constants/Colors";
+import { AuthProvider } from "@/provider/AuthProvider";
 import { supabase } from "@/utils/supabase";
 import { FontAwesome, Ionicons } from "@expo/vector-icons";
 import {
@@ -82,97 +83,101 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider value={theme}>
-      <Stack>
-        <Stack.Screen
-          name="(tabs)"
-          options={{
-            headerShown: true,
-            headerTitle: getHeaderTitle(),
-            headerTitleAlign: "center",
-            headerStyle: {
-              backgroundColor: Colors.light.primaryColor,
-            },
-            headerTintColor: "white",
-            headerLeft: () => (
-              <TouchableOpacity style={styles.headerButton}>
-                <Ionicons name="menu" size={28} color={theme.colors.card} />
-              </TouchableOpacity>
-            ),
-            headerRight: () => (
-              <TouchableOpacity
-                style={styles.headerButton}
-                onPress={() => router.push("/(tabs)/profile")}
-              >
-                <FontAwesome
-                  name="user-circle-o"
-                  size={28}
-                  color={theme.colors.card}
-                />
-              </TouchableOpacity>
-            ),
-          }}
-        />
-        <Stack.Screen name="sign-in" options={{ headerShown: false }} />
-        <Stack.Screen name="sign-up" options={{ headerShown: false }} />
-        <Stack.Screen
-          name="new-issue/index"
-          options={{
-            title: "Report a new issue",
-            headerTitleAlign: "center",
-            headerStyle: {
-              backgroundColor: Colors.light.primaryColor,
-            },
-            headerTintColor: theme.colors.card,
-            headerLeft: () => (
-              <TouchableOpacity
-                style={styles.headerButton}
-                onPress={() => router.back()}
-              >
-                <Ionicons
-                  name="arrow-back"
-                  size={24}
-                  color={theme.colors.card}
-                />
-              </TouchableOpacity>
-            ),
-            headerRight: () => <View />,
-          }}
-        />
-        <Stack.Screen
-          name="issue-details/[id]"
-          options={{
-            title: "Issue Details",
-            headerTitleAlign: "center",
-            headerStyle: {
-              backgroundColor: Colors.light.primaryColor,
-            },
-            headerTintColor: theme.colors.card,
-            headerLeft: () => (
-              <TouchableOpacity
-                style={styles.headerButton}
-                onPress={() => router.back()}
-              >
-                <Ionicons
-                  name="arrow-back"
-                  size={24}
-                  color={theme.colors.card}
-                />
-              </TouchableOpacity>
-            ),
-            headerRight: () => (
-              <View style={{ display: "flex", flexDirection: "row", gap: 16 }}>
+      <AuthProvider>
+        <Stack>
+          <Stack.Screen
+            name="(tabs)"
+            options={{
+              headerShown: true,
+              headerTitle: getHeaderTitle(),
+              headerTitleAlign: "center",
+              headerStyle: {
+                backgroundColor: Colors.light.primaryColor,
+              },
+              headerTintColor: "white",
+              headerLeft: () => (
                 <TouchableOpacity style={styles.headerButton}>
+                  <Ionicons name="menu" size={28} color={theme.colors.card} />
+                </TouchableOpacity>
+              ),
+              headerRight: () => (
+                <TouchableOpacity
+                  style={styles.headerButton}
+                  onPress={() => router.push("/(tabs)/profile")}
+                >
                   <FontAwesome
-                    name="edit"
+                    name="user-circle-o"
+                    size={28}
+                    color={theme.colors.card}
+                  />
+                </TouchableOpacity>
+              ),
+            }}
+          />
+          <Stack.Screen name="sign-in" options={{ headerShown: false }} />
+          <Stack.Screen name="sign-up" options={{ headerShown: false }} />
+          <Stack.Screen
+            name="new-issue/index"
+            options={{
+              title: "Report a new issue",
+              headerTitleAlign: "center",
+              headerStyle: {
+                backgroundColor: Colors.light.primaryColor,
+              },
+              headerTintColor: theme.colors.card,
+              headerLeft: () => (
+                <TouchableOpacity
+                  style={styles.headerButton}
+                  onPress={() => router.back()}
+                >
+                  <Ionicons
+                    name="arrow-back"
                     size={24}
                     color={theme.colors.card}
                   />
                 </TouchableOpacity>
-              </View>
-            ),
-          }}
-        />
-      </Stack>
+              ),
+              headerRight: () => <View />,
+            }}
+          />
+          <Stack.Screen
+            name="issue-details/[id]"
+            options={{
+              title: "Issue Details",
+              headerTitleAlign: "center",
+              headerStyle: {
+                backgroundColor: Colors.light.primaryColor,
+              },
+              headerTintColor: theme.colors.card,
+              headerLeft: () => (
+                <TouchableOpacity
+                  style={styles.headerButton}
+                  onPress={() => router.back()}
+                >
+                  <Ionicons
+                    name="arrow-back"
+                    size={24}
+                    color={theme.colors.card}
+                  />
+                </TouchableOpacity>
+              ),
+              headerRight: () => (
+                <View
+                  style={{ display: "flex", flexDirection: "row", gap: 16 }}
+                >
+                  <TouchableOpacity style={styles.headerButton}>
+                    <FontAwesome
+                      name="edit"
+                      size={24}
+                      color={theme.colors.card}
+                    />
+                  </TouchableOpacity>
+                </View>
+              ),
+            }}
+          />
+        </Stack>
+      </AuthProvider>
     </ThemeProvider>
   );
 }

@@ -12,18 +12,26 @@ import {
 } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import { Colors } from "@/constants/Colors";
+import { Picker } from "@react-native-picker/picker";
 
 export default function SignUpScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [role, setRole] = useState("USER");
+
   const router = useRouter();
 
   async function signUpWithEmail() {
     setLoading(true);
     const { error } = await supabase.auth.signUp({
-      email: email,
-      password: password,
+      email,
+      password,
+      options: {
+        data: {
+          role,
+        },
+      },
     });
 
     if (error) Alert.alert("Sign Up Error", error.message);
@@ -49,6 +57,7 @@ export default function SignUpScreen() {
           autoCapitalize="none"
           keyboardType="email-address"
         />
+
         <Input
           label="Password"
           leftIcon={<FontAwesome name="lock" size={24} color="gray" />}
@@ -58,6 +67,37 @@ export default function SignUpScreen() {
           placeholder="Password"
           autoCapitalize="none"
         />
+
+        <View style={{ paddingHorizontal: 8 }}>
+          <View style={{ display: "flex", flexDirection: "row" }}>
+            <FontAwesome
+              name="shield"
+              size={24}
+              color="gray"
+              style={{ marginRight: 8 }}
+            />
+            <Text
+              style={{
+                marginBottom: 5,
+                color: "gray",
+                fontWeight: "bold",
+                fontSize: 18,
+              }}
+            >
+              Role
+            </Text>
+          </View>
+
+          <Picker
+            selectedValue={role}
+            onValueChange={(itemValue) => setRole(itemValue)}
+            style={{ backgroundColor: "#f0f0f0", borderRadius: 6 }}
+          >
+            <Picker.Item label="User" value="USER" />
+            <Picker.Item label="Admin" value="ADMIN" />
+          </Picker>
+        </View>
+
         <TouchableOpacity
           style={styles.button}
           onPress={signUpWithEmail}
@@ -121,7 +161,8 @@ const styles = StyleSheet.create({
   signInLink: {
     marginTop: 20,
     textAlign: "center",
-    color: "#007bff",
+    color: Colors.light.primaryColor,
     fontSize: 16,
+    fontWeight: "bold",
   },
 });

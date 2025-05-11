@@ -139,7 +139,6 @@ export default function AddNewIssueScreen() {
   return (
     <ScrollView style={styles.container}>
       <View style={styles.formContainer}>
-        <Text style={styles.title}>Report an Issue</Text>
         <Text style={styles.label}>Title</Text>
         <Controller
           control={control}

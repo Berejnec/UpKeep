@@ -29,6 +29,9 @@ interface Issue {
   owner_id: string;
   admin_notes?: string;
   owner_email?: string;
+  is_merged?: boolean;
+  merged_group_title?: string;
+  merged_count?: number;
 }
 
 const AdminScreen = () => {
@@ -54,7 +57,18 @@ const AdminScreen = () => {
     try {
       let query = supabase
         .from("issues")
-        .select("*")
+        .select(
+          `
+          *,
+          issue_merges!left (
+            merged_issue_id,
+            merged_issues!inner (
+              id,
+              title
+            )
+          )
+        `
+        )
         .order("created_at", { ascending: false });
 
       if (statusFilter !== "ALL") {
@@ -70,7 +84,6 @@ const AdminScreen = () => {
       }
 
       if (fetchedIssues) {
-        // Fetch owner emails for each issue
         const issuesWithOwners = await Promise.all(
           fetchedIssues.map(async (issue) => {
             const { data: owner } = await supabase
@@ -79,9 +92,24 @@ const AdminScreen = () => {
               .eq("id", issue.owner_id)
               .single();
 
+            const mergeData = issue.issue_merges?.[0];
+            let mergedCount = 0;
+
+            if (mergeData?.merged_issues?.id) {
+              const { data: mergeCountData } = await supabase
+                .from("issue_merges")
+                .select("id")
+                .eq("merged_issue_id", mergeData.merged_issues.id);
+
+              mergedCount = mergeCountData?.length || 0;
+            }
+
             return {
               ...issue,
               owner_email: owner?.email || "Unknown",
+              is_merged: !!mergeData,
+              merged_group_title: mergeData?.merged_issues?.title,
+              merged_count: mergedCount,
             };
           })
         );
@@ -177,6 +205,15 @@ const AdminScreen = () => {
           </View>
         </View>
 
+        {item.is_merged && (
+          <View style={styles.mergedContainer}>
+            <MaterialIcons name="merge-type" size={16} color="#4caf50" />
+            <Text style={styles.mergedLabel}>
+              Merged: {item.merged_group_title} ({item.merged_count} issues)
+            </Text>
+          </View>
+        )}
+
         {item.admin_notes && (
           <View style={styles.adminNotesContainer}>
             <Text style={styles.adminNotesLabel}>Admin Notes:</Text>
@@ -251,15 +288,26 @@ const AdminScreen = () => {
               flexDirection: "row",
               gap: 16,
               alignItems: "center",
+              justifyContent: "space-between",
             }}
           >
-            <TouchableOpacity
-              onPress={() => router.back()}
-              style={styles.backButton}
+            <View
+              style={{ flexDirection: "row", alignItems: "center", gap: 16 }}
             >
-              <Ionicons name="arrow-back" size={24} color={"white"} />
+              <TouchableOpacity
+                onPress={() => router.back()}
+                style={styles.backButton}
+              >
+                <Ionicons name="arrow-back" size={24} color={"white"} />
+              </TouchableOpacity>
+              <Text style={styles.headerTitle}>Admin Dashboard</Text>
+            </View>
+            <TouchableOpacity
+              onPress={() => router.push("/admin/merge-issues" as any)}
+              style={styles.mergeButton}
+            >
+              <MaterialIcons name="merge-type" size={20} color="white" />
             </TouchableOpacity>
-            <Text style={styles.headerTitle}>Admin Dashboard</Text>
           </View>
           <View>
             <Text style={styles.headerSubtitle}>
@@ -316,6 +364,11 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     padding: 8,
     alignSelf: "flex-start",
+  },
+  mergeButton: {
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    borderRadius: 8,
+    padding: 8,
   },
   headerTitle: {
     fontSize: 24,
@@ -419,6 +472,20 @@ const styles = StyleSheet.create({
   detailText: {
     fontSize: 13,
     color: "#666",
+  },
+  mergedContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 8,
+    padding: 8,
+    backgroundColor: "#e8f5e8",
+    borderRadius: 6,
+    gap: 6,
+  },
+  mergedLabel: {
+    fontSize: 12,
+    color: "#4caf50",
+    fontWeight: "600",
   },
   adminNotesContainer: {
     marginTop: 12,

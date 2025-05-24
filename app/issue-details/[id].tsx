@@ -76,29 +76,35 @@ export default function IssueDetailsScreen() {
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={Colors.light.primaryColor} />
-          <Text style={styles.loadingText}>Loading issue details...</Text>
-        </View>
-      </SafeAreaView>
+      <>
+        <Stack.Screen options={{ headerShown: false }} />
+        <SafeAreaView style={styles.container}>
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color={Colors.light.primaryColor} />
+            <Text style={styles.loadingText}>Loading issue details...</Text>
+          </View>
+        </SafeAreaView>
+      </>
     );
   }
 
   if (!issue) {
     return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.errorContainer}>
-          <MaterialIcons name="error-outline" size={64} color="#ccc" />
-          <Text style={styles.errorText}>Issue not found</Text>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => router.back()}
-          >
-            <Text style={styles.backButtonText}>Go Back</Text>
-          </TouchableOpacity>
-        </View>
-      </SafeAreaView>
+      <>
+        <Stack.Screen options={{ headerShown: false }} />
+        <SafeAreaView style={styles.container}>
+          <View style={styles.errorContainer}>
+            <MaterialIcons name="error-outline" size={64} color="#ccc" />
+            <Text style={styles.errorText}>Issue not found</Text>
+            <TouchableOpacity
+              style={styles.backButton}
+              onPress={() => router.back()}
+            >
+              <Text style={styles.backButtonText}>Go Back</Text>
+            </TouchableOpacity>
+          </View>
+        </SafeAreaView>
+      </>
     );
   }
 
@@ -228,10 +234,6 @@ export default function IssueDetailsScreen() {
                     description={issue.address}
                   />
                 </MapView>
-                <TouchableOpacity style={styles.mapOverlay}>
-                  <MaterialIcons name="open-in-new" size={20} color="white" />
-                  <Text style={styles.mapOverlayText}>View in Maps</Text>
-                </TouchableOpacity>
               </View>
               {issue.address && (
                 <View style={styles.addressContainer}>

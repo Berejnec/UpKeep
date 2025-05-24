@@ -1,18 +1,22 @@
 import { Colors } from "@/constants/Colors";
 import { formatDateTime } from "@/utils/date";
 import { supabase } from "@/utils/supabase";
-import { FontAwesome, MaterialIcons, Octicons } from "@expo/vector-icons";
-import { Button, Card, Text } from "@rneui/themed";
-import { useRouter } from "expo-router";
+import { MaterialIcons } from "@expo/vector-icons";
+import { Card, Text } from "@rneui/themed";
+import { Stack, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
+  RefreshControl,
   SafeAreaView,
   StyleSheet,
   TouchableOpacity,
   View,
+  Dimensions,
 } from "react-native";
+
+const { width } = Dimensions.get("window");
 
 interface Issue {
   id: string;
@@ -42,6 +46,7 @@ const IssuesScreen = () => {
   const [displayItems, setDisplayItems] = useState<DisplayItem[]>([]);
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [showAllIssues, setShowAllIssues] = useState(true);
   const router = useRouter();
 
@@ -110,85 +115,97 @@ const IssuesScreen = () => {
     });
   };
 
-  useEffect(() => {
-    const fetchIssues = async () => {
+  const fetchIssues = async (isRefresh = false) => {
+    if (isRefresh) {
+      setRefreshing(true);
+    } else {
       setLoading(true);
-      try {
-        let query = supabase
-          .from("issues")
-          .select(
-            `
-            *,
-            issue_merges!left (
-              merged_issue_id,
-              merged_issues!inner (
-                id,
-                title
-              )
-            )
+    }
+
+    try {
+      let query = supabase
+        .from("issues")
+        .select(
           `
+          *,
+          issue_merges!left (
+            merged_issue_id,
+            merged_issues!inner (
+              id,
+              title
+            )
           )
-          .order("created_at", { ascending: false });
+        `
+        )
+        .order("created_at", { ascending: false });
 
-        if (!showAllIssues) {
-          const {
-            data: { user },
-          } = await supabase.auth.getUser();
+      if (!showAllIssues) {
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
 
-          if (user) {
-            query = query.eq("owner_id", user.id);
-          } else {
-            console.warn("User is not logged in. Cannot fetch owned issues.");
-            setIssues([]);
-            setLoading(false);
-            return;
-          }
-        }
-
-        const { data: fetchedIssues, error } = await query;
-
-        if (error) {
-          console.error("Error fetching issues:", error);
+        if (user) {
+          query = query.eq("owner_id", user.id);
+        } else {
+          console.warn("User is not logged in. Cannot fetch owned issues.");
           setIssues([]);
+          setDisplayItems([]);
           return;
         }
+      }
 
-        if (fetchedIssues) {
-          const issuesWithMergeInfo = await Promise.all(
-            fetchedIssues.map(async (issue) => {
-              const mergeData = issue.issue_merges?.[0];
-              let mergedCount = 0;
+      const { data: fetchedIssues, error } = await query;
 
-              if (mergeData?.merged_issues?.id) {
-                const { data: mergeCountData } = await supabase
-                  .from("issue_merges")
-                  .select("id")
-                  .eq("merged_issue_id", mergeData.merged_issues.id);
-
-                mergedCount = mergeCountData?.length || 0;
-              }
-
-              return {
-                ...issue,
-                is_merged: !!mergeData,
-                merged_group_title: mergeData?.merged_issues?.title,
-                merged_group_id: mergeData?.merged_issues?.id,
-                merged_count: mergedCount,
-              };
-            })
-          );
-
-          setIssues(issuesWithMergeInfo);
-          processDisplayItems(issuesWithMergeInfo);
-        }
-      } catch (error) {
+      if (error) {
         console.error("Error fetching issues:", error);
         setIssues([]);
-      } finally {
-        setLoading(false);
+        setDisplayItems([]);
+        return;
       }
-    };
 
+      if (fetchedIssues) {
+        const issuesWithMergeInfo = await Promise.all(
+          fetchedIssues.map(async (issue) => {
+            const mergeData = issue.issue_merges?.[0];
+            let mergedCount = 0;
+
+            if (mergeData?.merged_issues?.id) {
+              const { data: mergeCountData } = await supabase
+                .from("issue_merges")
+                .select("id")
+                .eq("merged_issue_id", mergeData.merged_issues.id);
+
+              mergedCount = mergeCountData?.length || 0;
+            }
+
+            return {
+              ...issue,
+              is_merged: !!mergeData,
+              merged_group_title: mergeData?.merged_issues?.title,
+              merged_group_id: mergeData?.merged_issues?.id,
+              merged_count: mergedCount,
+            };
+          })
+        );
+
+        setIssues(issuesWithMergeInfo);
+        processDisplayItems(issuesWithMergeInfo);
+      }
+    } catch (error) {
+      console.error("Error fetching issues:", error);
+      setIssues([]);
+      setDisplayItems([]);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  const onRefresh = () => {
+    fetchIssues(true);
+  };
+
+  useEffect(() => {
     fetchIssues();
   }, [showAllIssues]);
 
@@ -204,28 +221,44 @@ const IssuesScreen = () => {
     <TouchableOpacity
       key={item.id}
       onPress={() => handleIssuePress(item.id)}
-      activeOpacity={0.7}
-      style={[styles.pressableCard, isInGroup && styles.groupedIssueCard]}
+      activeOpacity={0.8}
+      style={[
+        styles.issueCard,
+        isInGroup && styles.groupedIssueCard,
+        { marginBottom: isInGroup ? 8 : 16 },
+      ]}
     >
-      <Card
-        containerStyle={{
-          ...styles.card,
-          ...(isInGroup && styles.groupedCard),
-          marginBottom: isInGroup
-            ? 8
-            : index === displayItems.length - 1
-            ? 16
-            : 0,
-        }}
-      >
-        <Text style={styles.title}>{item.title}</Text>
-        <Text style={styles.description} numberOfLines={2}>
+      <View style={styles.issueCardContent}>
+        <View style={styles.issueHeader}>
+          <View style={styles.issueIconContainer}>
+            <MaterialIcons
+              name="report-problem"
+              size={20}
+              color={Colors.light.primaryColor}
+            />
+          </View>
+          <View style={styles.issueInfo}>
+            <Text style={styles.issueTitle} numberOfLines={2}>
+              {item.title}
+            </Text>
+            <Text style={styles.issueDate}>
+              {formatDateTime(item.created_at)}
+            </Text>
+          </View>
+        </View>
+
+        <Text style={styles.issueDescription} numberOfLines={3}>
           {item.description}
         </Text>
-        <Text style={styles.date}>
-          Reported at {formatDateTime(item.created_at)}
-        </Text>
-      </Card>
+
+        <View style={styles.issueFooter}>
+          <View style={styles.statusIndicator}>
+            <View style={styles.statusDot} />
+            <Text style={styles.statusText}>Open</Text>
+          </View>
+          <MaterialIcons name="chevron-right" size={20} color="#ccc" />
+        </View>
+      </View>
     </TouchableOpacity>
   );
 
@@ -312,96 +345,113 @@ const IssuesScreen = () => {
   if (!displayItems || displayItems.length === 0) {
     return (
       <SafeAreaView style={styles.container}>
-        <View
-          style={{
-            display: "flex",
-            flexDirection: "row",
-            alignItems: "center",
-            gap: 16,
-            flexWrap: "wrap",
-            paddingTop: 16,
-            marginBottom: 8,
-          }}
-        >
-          <Text h4 style={styles.screenTitle}>
-            Reported Issues
-          </Text>
-          <Button
-            icon={<FontAwesome name="user" size={24} color={"white"} />}
-            buttonStyle={{
-              backgroundColor: Colors.light.primaryColor,
-              borderRadius: 12,
-            }}
+        {/* Header */}
+        <View style={styles.header}>
+          <View style={styles.headerContent}>
+            <Text style={styles.headerTitle}>Issues</Text>
+            <Text style={styles.headerSubtitle}>
+              {showAllIssues ? "Community reports" : "Your reports"}
+            </Text>
+          </View>
+          <TouchableOpacity
+            style={styles.filterButton}
             onPress={() => setShowAllIssues((prev) => !prev)}
           >
-            <Text style={{ color: "white", marginLeft: 8 }}>
-              {showAllIssues ? "My issues" : "All issues"}
-            </Text>
-          </Button>
+            <MaterialIcons
+              name={showAllIssues ? "person" : "people"}
+              size={20}
+              color="white"
+            />
+          </TouchableOpacity>
         </View>
-        <View style={styles.noIssuesContainer}>
-          <Text style={styles.noIssuesText}>No issues reported yet.</Text>
+
+        {/* Empty State */}
+        <View style={styles.emptyStateContainer}>
+          <View style={styles.emptyStateIcon}>
+            <MaterialIcons name="report-problem" size={64} color="#e0e0e0" />
+          </View>
+          <Text style={styles.emptyStateTitle}>No Issues Found</Text>
+          <Text style={styles.emptyStateSubtitle}>
+            {showAllIssues
+              ? "No issues have been reported yet. Be the first to report one!"
+              : "You haven't reported any issues yet. Tap the + button to get started."}
+          </Text>
         </View>
+
+        {/* Floating Action Button */}
+        <TouchableOpacity
+          style={styles.fab}
+          onPress={() => router.push("/new-issue")}
+        >
+          <MaterialIcons name="add" size={28} color="white" />
+        </TouchableOpacity>
       </SafeAreaView>
     );
   }
 
-  const handlePress = () => {
-    router.push("/new-issue");
-  };
-
   return (
-    <SafeAreaView style={styles.container}>
-      <View
-        style={{
-          display: "flex",
-          flexDirection: "row",
-          alignItems: "center",
-          gap: 16,
-          flexWrap: "wrap",
-          paddingTop: 16,
-          marginBottom: 8,
-        }}
-      >
-        <Text h4 style={styles.screenTitle}>
-          Reported Issues
-        </Text>
-        <Button
-          icon={<FontAwesome name="user" size={24} color={"white"} />}
-          buttonStyle={{
-            backgroundColor: Colors.light.primaryColor,
-            borderRadius: 12,
-          }}
-          onPress={() => setShowAllIssues((prev) => !prev)}
-        >
-          <Text style={{ color: "white", marginLeft: 8 }}>
-            {showAllIssues ? "My issues" : "All issues"}
-          </Text>
-        </Button>
-      </View>
-
-      {loading ? (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={Colors.light.primaryColor} />
-          <Text style={styles.loadingText}>Loading Issues...</Text>
+    <>
+      <Stack.Screen options={{ headerShown: false }} />
+      <SafeAreaView style={styles.container}>
+        {/* Header */}
+        <View style={styles.header}>
+          <View style={styles.headerContent}>
+            <Text style={styles.headerTitle}>Issues</Text>
+            <Text style={styles.headerSubtitle}>
+              {showAllIssues ? "Community reports" : "Your reports"} •{" "}
+              {displayItems.length} total
+            </Text>
+          </View>
+          <TouchableOpacity
+            style={styles.filterButton}
+            onPress={() => setShowAllIssues((prev) => !prev)}
+          >
+            <MaterialIcons
+              name={showAllIssues ? "person" : "people"}
+              size={20}
+              color="white"
+            />
+          </TouchableOpacity>
         </View>
-      ) : (
-        <FlatList
-          data={displayItems}
-          renderItem={renderDisplayItem}
-          keyExtractor={(item) =>
-            item.type === "merged_group"
-              ? `group-${(item.data as MergedGroup).id}`
-              : `issue-${(item.data as Issue).id}`
-          }
-          style={styles.list}
-        />
-      )}
 
-      <TouchableOpacity style={styles.floatingButton} onPress={handlePress}>
-        <Octicons name="diff-added" size={24} color="white" />
-      </TouchableOpacity>
-    </SafeAreaView>
+        {/* Content */}
+        {loading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color={Colors.light.primaryColor} />
+            <Text style={styles.loadingText}>Loading issues...</Text>
+          </View>
+        ) : (
+          <FlatList
+            data={displayItems}
+            renderItem={renderDisplayItem}
+            keyExtractor={(item) =>
+              item.type === "merged_group"
+                ? `group-${(item.data as MergedGroup).id}`
+                : `issue-${(item.data as Issue).id}`
+            }
+            style={styles.list}
+            contentContainerStyle={styles.listContent}
+            showsVerticalScrollIndicator={false}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                colors={[Colors.light.primaryColor]}
+                tintColor={Colors.light.primaryColor}
+              />
+            }
+          />
+        )}
+
+        {/* Floating Action Button */}
+        <TouchableOpacity
+          style={styles.fab}
+          onPress={() => router.push("/new-issue")}
+        >
+          <MaterialIcons name="add" size={28} color="white" />
+        </TouchableOpacity>
+      </SafeAreaView>
+    </>
   );
 };
 
@@ -410,45 +460,47 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#f8f9fa",
   },
+
+  // Header Styles
+  header: {
+    backgroundColor: Colors.light.primaryColor,
+    paddingTop: 16,
+    paddingBottom: 20,
+    paddingHorizontal: 20,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-end",
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
+    marginBottom: 20,
+  },
+  headerContent: {
+    flex: 1,
+  },
+  headerTitle: {
+    fontSize: 28,
+    fontWeight: "bold",
+    color: "white",
+    marginBottom: 4,
+  },
+  headerSubtitle: {
+    fontSize: 14,
+    color: "rgba(255,255,255,0.8)",
+  },
+  filterButton: {
+    backgroundColor: "rgba(255,255,255,0.2)",
+    borderRadius: 12,
+    padding: 12,
+    marginLeft: 16,
+  },
+
+  // List Styles
   list: {
     flex: 1,
-    zIndex: 0,
   },
-  card: {
-    backgroundColor: "#ffffff",
-    borderRadius: 12,
-    elevation: 4,
-    marginVertical: 8,
-    padding: 16,
-    borderLeftWidth: 6,
-    borderLeftColor: "#168676",
-    shadowColor: "#168676",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  screenTitle: {
-    fontWeight: "bold",
-    color: "#168676",
-    paddingLeft: 16,
-    marginBottom: 8,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#168676",
-    marginBottom: 6,
-  },
-  description: {
-    fontSize: 16,
-    color: "#495057",
-    marginBottom: 8,
-    lineHeight: 22,
-  },
-  date: {
-    fontSize: 12,
-    color: "#6c757d",
-    fontStyle: "italic",
+  listContent: {
+    paddingHorizontal: 20,
+    paddingBottom: 24,
   },
   mergedContainer: {
     flexDirection: "row",
@@ -541,11 +593,140 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    paddingVertical: 50,
   },
   loadingText: {
-    marginTop: 10,
+    marginTop: 16,
     fontSize: 16,
-    color: "#168676",
+    color: "#666",
+  },
+
+  // Issue Card Styles
+  issueCard: {
+    backgroundColor: "white",
+    borderRadius: 16,
+    marginBottom: 16,
+    elevation: 3,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+  },
+  issueCardContent: {
+    padding: 20,
+  },
+  issueHeader: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    marginBottom: 12,
+    gap: 12,
+  },
+  issueIconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#f0f8ff",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  issueInfo: {
+    flex: 1,
+  },
+  issueTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#333",
+    marginBottom: 4,
+    lineHeight: 24,
+  },
+  issueDate: {
+    fontSize: 12,
+    color: "#666",
+  },
+  issueDescription: {
+    fontSize: 15,
+    color: "#555",
+    lineHeight: 22,
+    marginBottom: 16,
+  },
+  issueFooter: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  statusIndicator: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  statusDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "#4caf50",
+  },
+  statusText: {
+    fontSize: 12,
+    color: "#4caf50",
+    fontWeight: "500",
+  },
+
+  // Empty State Styles
+  emptyStateContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 40,
+    paddingVertical: 60,
+  },
+  emptyStateIcon: {
+    marginBottom: 24,
+  },
+  emptyStateTitle: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#333",
+    marginBottom: 12,
+    textAlign: "center",
+  },
+  emptyStateSubtitle: {
+    fontSize: 16,
+    color: "#666",
+    textAlign: "center",
+    lineHeight: 24,
+  },
+
+  // Floating Action Button
+  fab: {
+    position: "absolute",
+    bottom: 30,
+    right: 20,
+    backgroundColor: Colors.light.primaryColor,
+    borderRadius: 28,
+    width: 56,
+    height: 56,
+    justifyContent: "center",
+    alignItems: "center",
+    elevation: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+  },
+
+  // Legacy styles for compatibility
+  card: {
+    backgroundColor: "#ffffff",
+    borderRadius: 12,
+    elevation: 4,
+    marginVertical: 8,
+    padding: 16,
+    borderLeftWidth: 6,
+    borderLeftColor: "#168676",
+    shadowColor: "#168676",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
   noIssuesContainer: {
     flex: 1,

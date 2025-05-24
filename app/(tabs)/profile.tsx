@@ -187,14 +187,14 @@ export default function ProfileScreen() {
           <View style={styles.statContent}>
             <Text style={styles.statNumber}>
               {user.last_sign_in_at
-                ? new Date(user.last_sign_in_at).toLocaleDateString("en-GB", {
+                ? new Date(user.last_sign_in_at).toLocaleTimeString("en-GB", {
                     year: "numeric",
                     month: "numeric",
                     day: "numeric",
                   })
                 : "N/A"}
             </Text>
-            <Text style={styles.statLabel}>Last Active</Text>
+            <Text style={styles.statLabel}>Last signed in</Text>
           </View>
         </View>
       </View>
@@ -314,7 +314,7 @@ const styles = StyleSheet.create({
   // Header Section
   headerBackground: {
     backgroundColor: Colors.light.primaryColor,
-    paddingTop: 24,
+    paddingTop: 16,
     paddingBottom: 40,
     paddingHorizontal: 20,
     borderBottomLeftRadius: 30,
@@ -333,9 +333,9 @@ const styles = StyleSheet.create({
     position: "relative",
   },
   avatarImage: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
+    width: 180,
+    height: 160,
+    borderRadius: 65,
     borderWidth: 4,
     borderColor: "rgba(255,255,255,0.3)",
   },

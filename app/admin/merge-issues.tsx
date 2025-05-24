@@ -53,7 +53,7 @@ const MergeIssuesScreen = () => {
   const [mergeTitle, setMergeTitle] = useState("");
   const [mergeDescription, setMergeDescription] = useState("");
   const [creating, setCreating] = useState(false);
-  const { isAdmin } = useAuth();
+  const { isAdmin, user } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -191,6 +191,7 @@ const MergeIssuesScreen = () => {
         .insert({
           title: mergeTitle.trim(),
           description: mergeDescription.trim() || null,
+          created_by: user?.id,
         })
         .select()
         .single();

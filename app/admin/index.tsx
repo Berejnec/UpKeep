@@ -486,6 +486,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "#4caf50",
     fontWeight: "600",
+    width: "90%",
   },
   adminNotesContainer: {
     marginTop: 12,

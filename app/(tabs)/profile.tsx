@@ -314,7 +314,7 @@ const styles = StyleSheet.create({
   // Header Section
   headerBackground: {
     backgroundColor: Colors.light.primaryColor,
-    paddingTop: 60,
+    paddingTop: 24,
     paddingBottom: 40,
     paddingHorizontal: 20,
     borderBottomLeftRadius: 30,
@@ -527,7 +527,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   adminButton: {
-    backgroundColor: Colors.light.primaryColor,
+    backgroundColor: "#168676",
     borderRadius: 16,
     padding: 16,
     elevation: 2,

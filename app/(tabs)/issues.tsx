@@ -522,7 +522,6 @@ const styles = StyleSheet.create({
   },
   mergedGroupCard: {
     backgroundColor: "#f8fffe",
-    borderLeftWidth: 6,
     borderLeftColor: "#4caf50",
   },
   groupedIssueCard: {
@@ -714,12 +713,12 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
   },
 
-  // Legacy styles for compatibility
   card: {
     backgroundColor: "#ffffff",
     borderRadius: 12,
     elevation: 4,
     marginVertical: 8,
+    marginHorizontal: 0,
     padding: 16,
     borderLeftWidth: 6,
     borderLeftColor: "#168676",

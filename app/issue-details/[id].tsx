@@ -1,8 +1,8 @@
 import { formatDateTime } from "@/utils/date";
 import { supabase } from "@/utils/supabase";
-import { FontAwesome, MaterialIcons } from "@expo/vector-icons";
+import { MaterialIcons, Ionicons } from "@expo/vector-icons";
 import { Text } from "@rneui/themed";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, router, Stack } from "expo-router";
 import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -11,8 +11,13 @@ import {
   StyleSheet,
   TouchableOpacity,
   View,
+  SafeAreaView,
+  Dimensions,
 } from "react-native";
 import MapView, { Marker } from "react-native-maps";
+import { Colors } from "@/constants/Colors";
+
+const { width } = Dimensions.get("window");
 
 interface Issue {
   id: string;
@@ -71,135 +76,258 @@ export default function IssueDetailsScreen() {
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#168676" />
-      </View>
+      <SafeAreaView style={styles.container}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={Colors.light.primaryColor} />
+          <Text style={styles.loadingText}>Loading issue details...</Text>
+        </View>
+      </SafeAreaView>
     );
   }
 
   if (!issue) {
     return (
-      <View style={styles.container}>
-        <Text>Issue not found</Text>
-      </View>
+      <SafeAreaView style={styles.container}>
+        <View style={styles.errorContainer}>
+          <MaterialIcons name="error-outline" size={64} color="#ccc" />
+          <Text style={styles.errorText}>Issue not found</Text>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => router.back()}
+          >
+            <Text style={styles.backButtonText}>Go Back</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
     );
   }
 
+  const getStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case "open":
+        return "#4caf50";
+      case "in progress":
+        return "#ff9800";
+      case "closed":
+        return "#f44336";
+      default:
+        return "#666";
+    }
+  };
+
+  const getCategoryIcon = (
+    category: string
+  ): keyof typeof MaterialIcons.glyphMap => {
+    switch (category.toLowerCase()) {
+      case "road":
+        return "directions-car";
+      case "lighting":
+        return "lightbulb";
+      case "waste":
+        return "delete";
+      case "water":
+        return "water-drop";
+      case "safety":
+        return "security";
+      default:
+        return "report-problem";
+    }
+  };
+
   return (
-    <View style={styles.container}>
-      <ScrollView style={styles.content}>
-        <View
-          style={{
-            display: "flex",
-            flexDirection: "row",
-            alignItems: "center",
-            gap: 16,
-            flexWrap: "wrap",
-          }}
-        >
-          <Text h2 style={styles.title}>
-            {issue.title}
-          </Text>
-          <TouchableOpacity>
-            <FontAwesome name="star" size={24} color={"black"} />
+    <>
+      <Stack.Screen options={{ headerShown: false }} />
+
+      <SafeAreaView style={styles.container}>
+        {/* Header */}
+        <View style={styles.header}>
+          <TouchableOpacity
+            style={styles.headerBackButton}
+            onPress={() => router.back()}
+          >
+            <Ionicons name="arrow-back" size={24} color="white" />
           </TouchableOpacity>
-        </View>
-
-        {issue.latitude && issue.longitude ? (
-          <View style={styles.mapContainer}>
-            <MapView
-              style={styles.map}
-              initialRegion={{
-                latitude: issue.latitude,
-                longitude: issue.longitude,
-                latitudeDelta: 0.01,
-                longitudeDelta: 0.01,
-              }}
-            >
-              <Marker
-                coordinate={{
-                  latitude: issue.latitude,
-                  longitude: issue.longitude,
-                }}
-                title={issue.title}
-                description={issue.address}
-              />
-            </MapView>
-          </View>
-        ) : (
-          <Text style={styles.noLocation}>No location data available</Text>
-        )}
-        <Text h4 style={styles.sectionTitle}>
-          Issue Details
-        </Text>
-        <Text style={styles.description}>{issue.description}</Text>
-
-        {issue?.photo_url && (
-          <Image
-            source={{ uri: issue?.photo_url }}
-            style={{
-              width: "100%",
-              height: 300,
-              borderRadius: 8,
-              marginBottom: 12,
-            }}
-            resizeMode="cover"
-          />
-        )}
-
-        <View style={styles.detailRow}>
-          <Text style={styles.label}>Created by:</Text>
-          <Text style={styles.value}>{issue.owner_email || "Loading..."}</Text>
-        </View>
-
-        <View style={styles.detailRow}>
-          <Text style={styles.label}>Status:</Text>
-          <Text style={styles.value}>{issue.status}</Text>
-        </View>
-
-        <View style={styles.detailRow}>
-          <Text style={styles.label}>Category:</Text>
-          <Text style={styles.value}>{issue.category}</Text>
-        </View>
-
-        <View style={styles.detailRow}>
-          <Text style={styles.label}>Address:</Text>
-          <Text style={styles.value}>{issue.address}</Text>
-        </View>
-
-        <View style={styles.detailRow}>
-          <Text style={styles.label}>Created:</Text>
-          <Text style={styles.value}>{formatDateTime(issue.created_at)}</Text>
-        </View>
-
-        <View style={styles.detailRow}>
-          <Text style={styles.label}>Last Updated:</Text>
-          <Text style={styles.value}>{formatDateTime(issue.updated_at)}</Text>
-        </View>
-
-        {issue.admin_notes && (
-          <>
-            <Text
-              h4
-              style={[styles.sectionTitle, { marginTop: 24, marginBottom: 12 }]}
-            >
-              Admin Notes
+          <View style={styles.headerContent}>
+            <Text style={styles.headerTitle} numberOfLines={2}>
+              {issue.title}
             </Text>
-            <View style={styles.adminNotesContainer}>
-              <View style={styles.adminNotesHeader}>
+            <View style={styles.headerMeta}>
+              <View
+                style={[
+                  styles.statusBadge,
+                  { backgroundColor: getStatusColor(issue.status) },
+                ]}
+              >
+                <Text style={styles.statusText}>{issue.status}</Text>
+              </View>
+              <Text style={styles.headerDate}>
+                {formatDateTime(issue.created_at)}
+              </Text>
+            </View>
+          </View>
+        </View>
+
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Photo Section */}
+          {issue?.photo_url && (
+            <View style={styles.photoContainer}>
+              <Image
+                source={{ uri: issue.photo_url }}
+                style={styles.heroImage}
+                resizeMode="cover"
+              />
+            </View>
+          )}
+
+          {/* Description Card */}
+          <View style={styles.card}>
+            <View style={styles.cardHeader}>
+              <MaterialIcons
+                name="description"
+                size={24}
+                color={Colors.light.primaryColor}
+              />
+              <Text style={styles.cardTitle}>Description</Text>
+            </View>
+            <Text style={styles.description}>{issue.description}</Text>
+          </View>
+
+          {/* Location Card */}
+          {issue.latitude && issue.longitude ? (
+            <View style={styles.card}>
+              <View style={styles.cardHeader}>
+                <MaterialIcons
+                  name="place"
+                  size={24}
+                  color={Colors.light.primaryColor}
+                />
+                <Text style={styles.cardTitle}>Location</Text>
+              </View>
+              <View style={styles.mapContainer}>
+                <MapView
+                  style={styles.map}
+                  initialRegion={{
+                    latitude: issue.latitude,
+                    longitude: issue.longitude,
+                    latitudeDelta: 0.01,
+                    longitudeDelta: 0.01,
+                  }}
+                  scrollEnabled={false}
+                  zoomEnabled={false}
+                >
+                  <Marker
+                    coordinate={{
+                      latitude: issue.latitude,
+                      longitude: issue.longitude,
+                    }}
+                    title={issue.title}
+                    description={issue.address}
+                  />
+                </MapView>
+                <TouchableOpacity style={styles.mapOverlay}>
+                  <MaterialIcons name="open-in-new" size={20} color="white" />
+                  <Text style={styles.mapOverlayText}>View in Maps</Text>
+                </TouchableOpacity>
+              </View>
+              {issue.address && (
+                <View style={styles.addressContainer}>
+                  <MaterialIcons name="location-on" size={16} color="#666" />
+                  <Text style={styles.addressText}>{issue.address}</Text>
+                </View>
+              )}
+            </View>
+          ) : (
+            <View style={styles.card}>
+              <View style={styles.cardHeader}>
+                <MaterialIcons name="location-off" size={24} color="#ccc" />
+                <Text style={styles.cardTitle}>Location</Text>
+              </View>
+              <Text style={styles.noLocation}>No location data available</Text>
+            </View>
+          )}
+
+          {/* Details Card */}
+          <View style={styles.card}>
+            <View style={styles.cardHeader}>
+              <MaterialIcons
+                name="info"
+                size={24}
+                color={Colors.light.primaryColor}
+              />
+              <Text style={styles.cardTitle}>Issue Details</Text>
+            </View>
+
+            <View style={styles.detailsList}>
+              <View style={styles.detailItem}>
+                <View style={styles.detailIconContainer}>
+                  <MaterialIcons
+                    name={getCategoryIcon(issue.category)}
+                    size={20}
+                    color="#666"
+                  />
+                </View>
+                <View style={styles.detailContent}>
+                  <Text style={styles.detailLabel}>Category</Text>
+                  <Text style={styles.detailValue}>{issue.category}</Text>
+                </View>
+              </View>
+
+              <View style={styles.detailDivider} />
+
+              <View style={styles.detailItem}>
+                <View style={styles.detailIconContainer}>
+                  <MaterialIcons name="person" size={20} color="#666" />
+                </View>
+                <View style={styles.detailContent}>
+                  <Text style={styles.detailLabel}>Reported by</Text>
+                  <Text style={styles.detailValue}>
+                    {issue.owner_email || "Loading..."}
+                  </Text>
+                </View>
+              </View>
+
+              <View style={styles.detailDivider} />
+
+              <View style={styles.detailItem}>
+                <View style={styles.detailIconContainer}>
+                  <MaterialIcons name="schedule" size={20} color="#666" />
+                </View>
+                <View style={styles.detailContent}>
+                  <Text style={styles.detailLabel}>Last Updated</Text>
+                  <Text style={styles.detailValue}>
+                    {formatDateTime(issue.updated_at)}
+                  </Text>
+                </View>
+              </View>
+            </View>
+          </View>
+
+          {/* Admin Notes Card */}
+          {issue.admin_notes && (
+            <View style={styles.card}>
+              <View style={styles.cardHeader}>
                 <MaterialIcons
                   name="admin-panel-settings"
-                  size={20}
+                  size={24}
                   color="#168676"
                 />
-                <Text style={styles.adminNotesLabel}>Official Response</Text>
+                <Text style={styles.cardTitle}>Official Response</Text>
               </View>
-              <Text style={styles.adminNotesText}>{issue.admin_notes}</Text>
+              <View style={styles.adminNotesContainer}>
+                <Text style={styles.adminNotesText}>{issue.admin_notes}</Text>
+              </View>
             </View>
-          </>
-        )}
-      </ScrollView>
-    </View>
+          )}
+
+          {/* Bottom Spacing */}
+          <View style={styles.bottomSpacing} />
+        </ScrollView>
+      </SafeAreaView>
+    </>
   );
 }
 
@@ -207,92 +335,252 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#f8f9fa",
-    paddingBottom: 8,
   },
-  content: {
-    paddingHorizontal: 16,
-    marginTop: 16,
-  },
+
+  // Loading & Error States
   loadingContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    paddingVertical: 50,
   },
-  title: {
-    color: "#168676",
+  loadingText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: "#666",
   },
-  detailRow: {
-    flexDirection: "row",
-    marginBottom: 8,
-  },
-  label: {
-    fontWeight: "bold",
-    width: 120,
-    color: "#495057",
-  },
-  value: {
+  errorContainer: {
     flex: 1,
-    color: "#6c757d",
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 40,
   },
-  sectionTitle: {
+  errorText: {
+    fontSize: 18,
+    color: "#666",
+    marginTop: 16,
+    marginBottom: 24,
+    textAlign: "center",
+  },
+  backButton: {
+    backgroundColor: Colors.light.primaryColor,
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 8,
+  },
+  backButtonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+
+  // Header Styles
+  header: {
+    backgroundColor: Colors.light.primaryColor,
+    paddingTop: 24,
+    paddingBottom: 20,
+    paddingHorizontal: 20,
+    flexDirection: "row",
+    alignItems: "flex-start",
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
+  },
+  headerBackButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "rgba(255,255,255,0.2)",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 16,
+    marginTop: 4,
+  },
+  headerContent: {
+    flex: 1,
+  },
+  headerTitle: {
+    fontSize: 22,
+    fontWeight: "bold",
+    color: "white",
+    marginBottom: 8,
+    lineHeight: 28,
+  },
+  headerMeta: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  statusBadge: {
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  statusText: {
+    color: "white",
+    fontSize: 12,
+    fontWeight: "600",
+    textTransform: "uppercase",
+  },
+  headerDate: {
+    fontSize: 14,
+    color: "rgba(255,255,255,0.8)",
+  },
+
+  // Scroll View Styles
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingBottom: 40,
+  },
+
+  // Photo Styles
+  photoContainer: {
+    marginBottom: 20,
+  },
+  heroImage: {
+    width: "100%",
+    height: 250,
+    borderRadius: 0,
+  },
+
+  // Card Styles
+  card: {
+    backgroundColor: "white",
+    marginHorizontal: 20,
+    marginBottom: 20,
+    borderRadius: 16,
+    padding: 20,
+    elevation: 4,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+  },
+  cardHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 16,
+    gap: 12,
+  },
+  cardTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    // green color
     color: "#168676",
   },
+
+  // Description Styles
   description: {
     fontSize: 16,
     lineHeight: 24,
-    color: "#495057",
-    marginBottom: 18,
+    color: "#555",
   },
+
+  // Map Styles
   mapContainer: {
     borderRadius: 12,
-    shadowColor: "#168676",
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.2,
-    shadowRadius: 5,
-    elevation: 5,
-    backgroundColor: "white",
-    marginVertical: 8,
-    marginBottom: 16,
+    overflow: "hidden",
+    height: 200,
+    position: "relative",
+    marginBottom: 12,
   },
   map: {
-    height: 250,
     width: "100%",
-    borderRadius: 12,
+    height: "100%",
+  },
+  mapOverlay: {
+    position: "absolute",
+    top: 12,
+    right: 12,
+    backgroundColor: "rgba(0,0,0,0.7)",
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  mapOverlayText: {
+    color: "white",
+    fontSize: 12,
+    fontWeight: "600",
+  },
+  addressContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: "#f1f3f4",
+  },
+  addressText: {
+    fontSize: 14,
+    color: "#666",
+    flex: 1,
   },
   noLocation: {
-    color: "#6c757d",
-    fontStyle: "italic",
+    fontSize: 14,
+    color: "#999",
     textAlign: "center",
-    marginVertical: 20,
+    fontStyle: "italic",
   },
-  adminNotesContainer: {
+
+  // Details List Styles
+  detailsList: {
+    gap: 0,
+  },
+  detailItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 12,
+    gap: 16,
+  },
+  detailIconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     backgroundColor: "#f8f9fa",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  detailContent: {
+    flex: 1,
+  },
+  detailLabel: {
+    fontSize: 12,
+    color: "#666",
+    fontWeight: "500",
+    marginBottom: 2,
+  },
+  detailValue: {
+    fontSize: 16,
+    color: "#333",
+    fontWeight: "500",
+  },
+  detailDivider: {
+    height: 1,
+    backgroundColor: "#f1f3f4",
+    marginLeft: 56,
+  },
+
+  // Admin Notes Styles
+  adminNotesContainer: {
+    backgroundColor: "#f0fff0", // lighter green
     borderRadius: 12,
     padding: 16,
     borderLeftWidth: 4,
     borderLeftColor: "#168676",
-    marginBottom: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  adminNotesHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 12,
-    gap: 8,
-  },
-  adminNotesLabel: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#168676",
   },
   adminNotesText: {
     fontSize: 15,
     lineHeight: 22,
-    color: "#495057",
+    color: "#168676",
     fontStyle: "italic",
+  },
+
+  // Spacing
+  bottomSpacing: {
+    height: 40,
   },
 });

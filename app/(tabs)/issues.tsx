@@ -79,9 +79,38 @@ const IssuesScreen = () => {
 
   if (!issues || issues.length === 0) {
     return (
-      <View style={styles.noIssuesContainer}>
-        <Text style={styles.noIssuesText}>No issues reported yet.</Text>
-      </View>
+      <SafeAreaView style={styles.container}>
+        <View
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 16,
+            flexWrap: "wrap",
+            paddingTop: 16,
+            marginBottom: 8,
+          }}
+        >
+          <Text h4 style={styles.screenTitle}>
+            Reported Issues
+          </Text>
+          <Button
+            icon={<FontAwesome name="user" size={24} color={"white"} />}
+            buttonStyle={{
+              backgroundColor: Colors.light.primaryColor,
+              borderRadius: 12,
+            }}
+            onPress={() => setShowAllIssues((prev) => !prev)}
+          >
+            <Text style={{ color: "white", marginLeft: 8 }}>
+              {showAllIssues ? "My issues" : "All issues"}
+            </Text>
+          </Button>
+        </View>
+        <View style={styles.noIssuesContainer}>
+          <Text style={styles.noIssuesText}>No issues reported yet.</Text>
+        </View>
+      </SafeAreaView>
     );
   }
 

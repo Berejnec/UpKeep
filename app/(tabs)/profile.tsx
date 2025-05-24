@@ -1,11 +1,12 @@
 import { Colors } from "@/constants/Colors";
 import { useAuth } from "@/provider/AuthProvider";
 import { supabase } from "@/utils/supabase";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { Button, Text } from "@rneui/themed";
 import { decode } from "base64-arraybuffer";
 import * as FileSystem from "expo-file-system";
 import * as ImagePicker from "expo-image-picker";
+import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -16,9 +17,10 @@ import {
 } from "react-native";
 
 export default function ProfileScreen() {
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const [issueCount, setIssueCount] = useState<number | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     if (!user) return;
@@ -128,10 +130,14 @@ export default function ProfileScreen() {
 
       <View style={styles.statsContainer}>
         <View style={styles.statBox}>
+          <Text style={styles.statLabel}>
+            Issues Reported @{" "}
+            <Text style={{ fontWeight: "bold", color: "white" }}>UpKeep</Text>
+          </Text>
+
           <Text style={styles.statNumber}>
             {issueCount ?? <ActivityIndicator size="small" color="#fff" />}
           </Text>
-          <Text style={styles.statLabel}>Issues Reported @ UpKeep</Text>
         </View>
       </View>
 
@@ -166,6 +172,23 @@ export default function ProfileScreen() {
           </View>
         </View>
       </View>
+
+      {isAdmin && (
+        <Button
+          onPress={() => router.push("/admin")}
+          containerStyle={styles.adminButtonContainer}
+          buttonStyle={styles.adminButton}
+          title="Admin Dashboard"
+          icon={
+            <MaterialIcons
+              name="admin-panel-settings"
+              size={20}
+              color="white"
+              style={{ marginRight: 8 }}
+            />
+          }
+        />
+      )}
 
       <Button
         onPress={() => supabase.auth.signOut()}
@@ -287,6 +310,15 @@ const styles = StyleSheet.create({
     backgroundColor: "#eee",
     marginVertical: 8,
     marginLeft: 35,
+  },
+  adminButtonContainer: {
+    width: "100%",
+    marginVertical: 10,
+  },
+  adminButton: {
+    backgroundColor: Colors.light.primaryColor,
+    borderRadius: 10,
+    paddingVertical: 12,
   },
   signOutButtonContainer: {
     width: "100%",

@@ -479,7 +479,7 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
   },
   selectedStatusOption: {
-    backgroundColor: "#f8f9fa",
+    backgroundColor: "#f0f0f0",
   },
   statusOptionText: {
     fontSize: 14,

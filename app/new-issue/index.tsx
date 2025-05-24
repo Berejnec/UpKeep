@@ -2,7 +2,7 @@ import { supabase } from "@/utils/supabase";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Session } from "@supabase/supabase-js";
 import * as Location from "expo-location";
-import { router } from "expo-router";
+import { router, Stack } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
@@ -14,7 +14,13 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  SafeAreaView,
+  Dimensions,
 } from "react-native";
+import { MaterialIcons, Ionicons } from "@expo/vector-icons";
+import { Colors } from "@/constants/Colors";
+
+const { width } = Dimensions.get("window");
 import MapView, { Marker } from "react-native-maps";
 import { z } from "zod";
 import * as ImagePicker from "expo-image-picker";
@@ -182,253 +188,518 @@ export default function AddNewIssueScreen() {
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.formContainer}>
-        <Text style={styles.label}>Title</Text>
-        <Controller
-          control={control}
-          name="title"
-          render={({ field: { onChange, value } }) => (
-            <TextInput
-              placeholder="Enter issue title"
-              style={styles.input}
-              onChangeText={onChange}
-              value={value}
-            />
-          )}
-        />
-        {errors.title && (
-          <Text style={styles.error}>{errors.title.message}</Text>
-        )}
+    <>
+      <Stack.Screen options={{ headerShown: false }} />
+      <SafeAreaView style={styles.container}>
+        {/* Header */}
+        <View style={styles.header}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => router.back()}
+          >
+            <Ionicons name="arrow-back" size={24} color="white" />
+          </TouchableOpacity>
+          <View style={styles.headerContent}>
+            <Text style={styles.headerTitle}>Report Issue</Text>
+            <Text style={styles.headerSubtitle}>
+              Help improve your community
+            </Text>
+          </View>
+        </View>
 
-        <Text style={styles.label}>Description</Text>
-        <Controller
-          control={control}
-          name="description"
-          render={({ field: { onChange, value } }) => (
-            <TextInput
-              placeholder="Enter detailed description"
-              multiline
-              style={[styles.input, styles.multilineInput]}
-              onChangeText={onChange}
-              value={value}
-            />
-          )}
-        />
-        {errors.description && (
-          <Text style={styles.error}>{errors.description.message}</Text>
-        )}
-        <Text style={styles.label}>Category</Text>
-        <Controller
-          control={control}
-          name="category"
-          render={({ field: { onChange, value } }) => (
-            <TextInput
-              placeholder="Enter category (e.g., Road, Lighting)"
-              style={styles.input}
-              onChangeText={onChange}
-              value={value}
-            />
-          )}
-        />
-        {errors.category && (
-          <Text style={styles.error}>{errors.category.message}</Text>
-        )}
-        <Text style={styles.label}>Status</Text>
-        <Controller
-          control={control}
-          name="status"
-          render={({ field: { onChange, value } }) => (
-            <TextInput
-              placeholder="Enter status (default: open)"
-              style={styles.input}
-              onChangeText={onChange}
-              value={value}
-            />
-          )}
-        />
-        {errors.status && (
-          <Text style={styles.error}>{errors.status.message}</Text>
-        )}
-        <Text style={styles.label}>Address (optional)</Text>
-        <Controller
-          control={control}
-          name="address"
-          render={({ field: { onChange, value } }) => (
-            <TextInput
-              placeholder="Enter address if known"
-              style={styles.input}
-              onChangeText={onChange}
-              value={value}
-            />
-          )}
-        />
-        <Text style={styles.label}>Pick Location</Text>
-        <TouchableOpacity
-          style={styles.locationButton}
-          onPress={getCurrentLocation}
-          disabled={locationLoading}
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
         >
-          {locationLoading ? (
-            <ActivityIndicator color="white" />
-          ) : (
-            <Text style={styles.locationButtonText}>Use Current Location</Text>
-          )}
-        </TouchableOpacity>
+          {/* Basic Information Card */}
+          <View style={styles.card}>
+            <View style={styles.cardHeader}>
+              <MaterialIcons
+                name="info"
+                size={24}
+                color={Colors.light.primaryColor}
+              />
+              <Text style={styles.cardTitle}>Basic Information</Text>
+            </View>
 
-        <MapView style={styles.map} region={mapRegion} onPress={onMapPress}>
-          {mapRegion && (
-            <Marker
-              coordinate={{
-                latitude: mapRegion.latitude,
-                longitude: mapRegion.longitude,
-              }}
-            />
-          )}
-        </MapView>
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Issue Title *</Text>
+              <Controller
+                control={control}
+                name="title"
+                render={({ field: { onChange, value } }) => (
+                  <View style={styles.inputContainer}>
+                    <MaterialIcons
+                      name="title"
+                      size={20}
+                      color="#666"
+                      style={styles.inputIcon}
+                    />
+                    <TextInput
+                      placeholder="What's the problem?"
+                      style={styles.input}
+                      onChangeText={onChange}
+                      value={value}
+                      placeholderTextColor="#999"
+                    />
+                  </View>
+                )}
+              />
+              {errors.title && (
+                <Text style={styles.error}>{errors.title.message}</Text>
+              )}
+            </View>
 
-        <TouchableOpacity
-          style={[styles.locationButton, { backgroundColor: "#6c757d" }]}
-          onPress={pickImage}
-        >
-          <Text style={styles.locationButtonText}>
-            {imageUri ? "Change Photo" : "Upload Photo"}
-          </Text>
-        </TouchableOpacity>
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Description *</Text>
+              <Controller
+                control={control}
+                name="description"
+                render={({ field: { onChange, value } }) => (
+                  <View
+                    style={[styles.inputContainer, styles.multilineContainer]}
+                  >
+                    <MaterialIcons
+                      name="description"
+                      size={20}
+                      color="#666"
+                      style={styles.inputIconTop}
+                    />
+                    <TextInput
+                      placeholder="Provide detailed information about the issue..."
+                      multiline
+                      style={[styles.input, styles.multilineInput]}
+                      onChangeText={onChange}
+                      value={value}
+                      placeholderTextColor="#999"
+                      textAlignVertical="top"
+                    />
+                  </View>
+                )}
+              />
+              {errors.description && (
+                <Text style={styles.error}>{errors.description.message}</Text>
+              )}
+            </View>
 
-        {imageUri && (
-          <Image
-            source={{ uri: imageUri }}
-            style={{
-              width: "100%",
-              height: 200,
-              marginTop: 10,
-              borderRadius: 6,
-            }}
-          />
-        )}
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Category *</Text>
+              <Controller
+                control={control}
+                name="category"
+                render={({ field: { onChange, value } }) => (
+                  <View style={styles.inputContainer}>
+                    <MaterialIcons
+                      name="category"
+                      size={20}
+                      color="#666"
+                      style={styles.inputIcon}
+                    />
+                    <TextInput
+                      placeholder="e.g., Road, Lighting, Waste Management"
+                      style={styles.input}
+                      onChangeText={onChange}
+                      value={value}
+                      placeholderTextColor="#999"
+                    />
+                  </View>
+                )}
+              />
+              {errors.category && (
+                <Text style={styles.error}>{errors.category.message}</Text>
+              )}
+            </View>
 
-        <TouchableOpacity
-          style={styles.submitButton}
-          onPress={handleSubmit(onSubmit)}
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? (
-            <ActivityIndicator color="white" />
-          ) : (
-            <Text style={styles.submitButtonText}>Submit Issue</Text>
-          )}
-        </TouchableOpacity>
-      </View>
-    </ScrollView>
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Address (Optional)</Text>
+              <Controller
+                control={control}
+                name="address"
+                render={({ field: { onChange, value } }) => (
+                  <View style={styles.inputContainer}>
+                    <MaterialIcons
+                      name="location-on"
+                      size={20}
+                      color="#666"
+                      style={styles.inputIcon}
+                    />
+                    <TextInput
+                      placeholder="Street address or landmark"
+                      style={styles.input}
+                      onChangeText={onChange}
+                      value={value}
+                      placeholderTextColor="#999"
+                    />
+                  </View>
+                )}
+              />
+            </View>
+          </View>
+
+          {/* Location Card */}
+          <View style={styles.card}>
+            <View style={styles.cardHeader}>
+              <MaterialIcons
+                name="place"
+                size={24}
+                color={Colors.light.primaryColor}
+              />
+              <Text style={styles.cardTitle}>Location</Text>
+            </View>
+
+            <TouchableOpacity
+              style={styles.locationButton}
+              onPress={getCurrentLocation}
+              disabled={locationLoading}
+            >
+              <View style={styles.buttonContent}>
+                {locationLoading ? (
+                  <ActivityIndicator color="white" size="small" />
+                ) : (
+                  <MaterialIcons name="my-location" size={20} color="white" />
+                )}
+                <Text style={styles.locationButtonText}>
+                  {locationLoading
+                    ? "Getting Location..."
+                    : "Use Current Location"}
+                </Text>
+              </View>
+            </TouchableOpacity>
+
+            <View style={styles.mapContainer}>
+              <MapView
+                style={styles.map}
+                region={mapRegion}
+                onPress={onMapPress}
+              >
+                {mapRegion && (
+                  <Marker
+                    coordinate={{
+                      latitude: mapRegion.latitude,
+                      longitude: mapRegion.longitude,
+                    }}
+                    title="Issue Location"
+                    description="Tap to adjust position"
+                  />
+                )}
+              </MapView>
+              {!mapRegion && (
+                <View style={styles.mapPlaceholder}>
+                  <MaterialIcons name="map" size={48} color="#ccc" />
+                  <Text style={styles.mapPlaceholderText}>
+                    Tap "Use Current Location" or tap on the map to set location
+                  </Text>
+                </View>
+              )}
+            </View>
+          </View>
+
+          {/* Photo Card */}
+          <View style={styles.card}>
+            <View style={styles.cardHeader}>
+              <MaterialIcons
+                name="photo-camera"
+                size={24}
+                color={Colors.light.primaryColor}
+              />
+              <Text style={styles.cardTitle}>Photo Evidence</Text>
+            </View>
+
+            <TouchableOpacity style={styles.photoButton} onPress={pickImage}>
+              <View style={styles.buttonContent}>
+                <MaterialIcons
+                  name="add-a-photo"
+                  size={20}
+                  color={Colors.light.primaryColor}
+                />
+                <Text style={styles.photoButtonText}>
+                  {imageUri ? "Change Photo" : "Add Photo"}
+                </Text>
+              </View>
+            </TouchableOpacity>
+
+            {imageUri && (
+              <View style={styles.imageContainer}>
+                <Image
+                  source={{ uri: imageUri }}
+                  style={styles.previewImage}
+                  resizeMode="cover"
+                />
+                <TouchableOpacity
+                  style={styles.removeImageButton}
+                  onPress={() => setImageUri(null)}
+                >
+                  <MaterialIcons name="close" size={20} color="white" />
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
+
+          {/* Submit Button */}
+          <TouchableOpacity
+            style={[
+              styles.submitButton,
+              isSubmitting && styles.submitButtonDisabled,
+            ]}
+            onPress={handleSubmit(onSubmit)}
+            disabled={isSubmitting}
+          >
+            <View style={styles.buttonContent}>
+              {isSubmitting ? (
+                <ActivityIndicator color="white" size="small" />
+              ) : (
+                <MaterialIcons name="send" size={20} color="white" />
+              )}
+              <Text style={styles.submitButtonText}>
+                {isSubmitting ? "Submitting..." : "Submit Issue"}
+              </Text>
+            </View>
+          </TouchableOpacity>
+
+          {/* Bottom Spacing */}
+          <View style={styles.bottomSpacing} />
+        </ScrollView>
+      </SafeAreaView>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
-    paddingTop: 12,
+    backgroundColor: "#f8f9fa",
   },
-  searchContainer: {
-    marginBottom: 15,
-    zIndex: 1000,
+
+  // Header Styles
+  header: {
+    backgroundColor: Colors.light.primaryColor,
+    paddingTop: 24,
+    paddingBottom: 20,
+    paddingHorizontal: 20,
+    flexDirection: "row",
+    alignItems: "flex-end",
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
   },
-  searchInput: {
-    height: 50,
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 6,
-    paddingHorizontal: 12,
-    backgroundColor: "#fff",
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "rgba(255,255,255,0.2)",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 16,
   },
-  searchResults: {
-    position: "absolute",
-    top: 50,
-    left: 0,
-    right: 0,
-    backgroundColor: "#fff",
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 6,
-    maxHeight: 200,
+  headerContent: {
+    flex: 1,
   },
-  formContainer: {
-    backgroundColor: "white",
-    padding: 20,
-    marginBottom: 32,
-    borderRadius: 12,
-    marginHorizontal: 16,
-    marginVertical: 0,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  title: {
+  headerTitle: {
     fontSize: 24,
     fontWeight: "bold",
+    color: "white",
+    marginBottom: 4,
+  },
+  headerSubtitle: {
+    fontSize: 14,
+    color: "rgba(255,255,255,0.8)",
+  },
+
+  // Scroll View Styles
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    padding: 20,
+  },
+
+  // Card Styles
+  card: {
+    backgroundColor: "white",
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 20,
+    elevation: 4,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+  },
+  cardHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 20,
+    gap: 12,
+  },
+  cardTitle: {
+    fontSize: 18,
+    fontWeight: "600",
     color: "#333",
-    marginBottom: 25,
-    textAlign: "center",
+  },
+
+  // Input Styles
+  inputGroup: {
+    marginBottom: 20,
   },
   label: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#444",
+    color: "#333",
     marginBottom: 8,
   },
-  input: {
+  inputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#f8f9fa",
+    borderRadius: 12,
     borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 6,
-    padding: 12,
-    marginBottom: 15,
+    borderColor: "#e9ecef",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  multilineContainer: {
+    alignItems: "flex-start",
+    paddingVertical: 16,
+  },
+  inputIcon: {
+    marginRight: 12,
+  },
+  inputIconTop: {
+    marginRight: 12,
+    marginTop: 2,
+  },
+  input: {
+    flex: 1,
     fontSize: 16,
-    backgroundColor: "#fff",
+    color: "#333",
+    padding: 0,
   },
   multilineInput: {
-    height: 100,
+    minHeight: 80,
     textAlignVertical: "top",
   },
   error: {
-    color: "#ff4444",
+    color: "#dc3545",
     fontSize: 14,
-    marginBottom: 10,
+    marginTop: 4,
+    marginLeft: 4,
+  },
+
+  // Button Styles
+  buttonContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
   },
   locationButton: {
-    backgroundColor: "#007bff",
-    paddingVertical: 12,
-    borderRadius: 6,
-    alignItems: "center",
-    marginBottom: 15,
+    backgroundColor: Colors.light.primaryColor,
+    borderRadius: 12,
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    marginBottom: 16,
+    elevation: 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
   locationButtonText: {
     color: "white",
     fontSize: 16,
-    fontWeight: "bold",
-    flexDirection: "row",
-    alignItems: "center",
+    fontWeight: "600",
   },
-  map: {
-    width: "100%",
-    height: 200,
-    borderRadius: 8,
-    marginBottom: 25,
-    borderWidth: 1,
-    borderColor: "#ddd",
+  photoButton: {
+    backgroundColor: "#f8f9fa",
+    borderRadius: 12,
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    borderWidth: 2,
+    borderColor: Colors.light.primaryColor,
+    borderStyle: "dashed",
+    marginBottom: 16,
+  },
+  photoButtonText: {
+    color: Colors.light.primaryColor,
+    fontSize: 16,
+    fontWeight: "600",
   },
   submitButton: {
-    backgroundColor: "#28a745",
-    paddingVertical: 12,
-    borderRadius: 6,
-    alignItems: "center",
-    marginTop: 10,
+    backgroundColor: Colors.light.primaryColor,
+    borderRadius: 16,
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    elevation: 4,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+  },
+  submitButtonDisabled: {
+    backgroundColor: "#ccc",
+    elevation: 0,
   },
   submitButtonText: {
     color: "white",
     fontSize: 18,
     fontWeight: "bold",
+  },
+
+  // Map Styles
+  mapContainer: {
+    borderRadius: 12,
+    overflow: "hidden",
+    height: 200,
+    backgroundColor: "#f8f9fa",
+    position: "relative",
+  },
+  map: {
+    width: "100%",
+    height: "100%",
+  },
+  mapPlaceholder: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#f8f9fa",
+    padding: 20,
+  },
+  mapPlaceholderText: {
+    fontSize: 14,
+    color: "#666",
+    textAlign: "center",
+    marginTop: 12,
+    lineHeight: 20,
+  },
+
+  // Image Styles
+  imageContainer: {
+    position: "relative",
+    borderRadius: 12,
+    overflow: "hidden",
+  },
+  previewImage: {
+    width: "100%",
+    height: 200,
+    borderRadius: 12,
+  },
+  removeImageButton: {
+    position: "absolute",
+    top: 8,
+    right: 8,
+    backgroundColor: "rgba(0,0,0,0.6)",
+    borderRadius: 16,
+    width: 32,
+    height: 32,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  // Spacing
+  bottomSpacing: {
+    height: 40,
   },
 });

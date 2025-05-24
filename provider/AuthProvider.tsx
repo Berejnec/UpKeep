@@ -10,6 +10,8 @@ import { supabase } from "@/utils/supabase";
 type AuthProps = {
   user: User | null;
   session: Session | null;
+  userRole: string | null;
+  isAdmin: boolean;
   initialized?: boolean;
   signOut?: () => void;
 };
@@ -23,12 +25,46 @@ export function useAuth() {
 export const AuthProvider = ({ children }: PropsWithChildren) => {
   const [user, setUser] = useState<User | null>();
   const [session, setSession] = useState<Session | null>(null);
+  const [userRole, setUserRole] = useState<string | null>(null);
   const [initialized, setInitialized] = useState<boolean>(false);
+
+  const fetchUserRole = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", userId)
+        .single();
+
+      if (error) {
+        console.error("Error fetching user role:", error);
+        return null;
+      }
+
+      return data?.role || null;
+    } catch (error) {
+      console.error("Error fetching user role:", error);
+      return null;
+    }
+  };
 
   useEffect(() => {
     const { data } = supabase.auth.onAuthStateChange(async (event, session) => {
       setSession(session);
       setUser(session ? session.user : null);
+
+      if (session?.user) {
+        const metadataRole = session.user.user_metadata?.role;
+        if (metadataRole) {
+          setUserRole(metadataRole);
+        } else {
+          const role = await fetchUserRole(session.user.id);
+          setUserRole(role);
+        }
+      } else {
+        setUserRole(null);
+      }
+
       setInitialized(true);
     });
     return () => {
@@ -43,6 +79,8 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
   const value = {
     user,
     session,
+    userRole,
+    isAdmin: userRole === "ADMIN",
     initialized,
     signOut,
   };

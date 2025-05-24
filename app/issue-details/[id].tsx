@@ -1,6 +1,6 @@
 import { formatDateTime } from "@/utils/date";
 import { supabase } from "@/utils/supabase";
-import { FontAwesome } from "@expo/vector-icons";
+import { FontAwesome, MaterialIcons } from "@expo/vector-icons";
 import { Text } from "@rneui/themed";
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
@@ -28,6 +28,7 @@ interface Issue {
   photo_url: string | null;
   owner_id: string;
   owner_email?: string;
+  admin_notes?: string | null;
 }
 
 export default function IssueDetailsScreen() {
@@ -175,6 +176,28 @@ export default function IssueDetailsScreen() {
           <Text style={styles.label}>Last Updated:</Text>
           <Text style={styles.value}>{formatDateTime(issue.updated_at)}</Text>
         </View>
+
+        {issue.admin_notes && (
+          <>
+            <Text
+              h4
+              style={[styles.sectionTitle, { marginTop: 24, marginBottom: 12 }]}
+            >
+              Admin Notes
+            </Text>
+            <View style={styles.adminNotesContainer}>
+              <View style={styles.adminNotesHeader}>
+                <MaterialIcons
+                  name="admin-panel-settings"
+                  size={20}
+                  color="#168676"
+                />
+                <Text style={styles.adminNotesLabel}>Official Response</Text>
+              </View>
+              <Text style={styles.adminNotesText}>{issue.admin_notes}</Text>
+            </View>
+          </>
+        )}
       </ScrollView>
     </View>
   );
@@ -241,5 +264,35 @@ const styles = StyleSheet.create({
     fontStyle: "italic",
     textAlign: "center",
     marginVertical: 20,
+  },
+  adminNotesContainer: {
+    backgroundColor: "#f8f9fa",
+    borderRadius: 12,
+    padding: 16,
+    borderLeftWidth: 4,
+    borderLeftColor: "#168676",
+    marginBottom: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  adminNotesHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 12,
+    gap: 8,
+  },
+  adminNotesLabel: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#168676",
+  },
+  adminNotesText: {
+    fontSize: 15,
+    lineHeight: 22,
+    color: "#495057",
+    fontStyle: "italic",
   },
 });

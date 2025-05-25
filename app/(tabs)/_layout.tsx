@@ -1,12 +1,12 @@
-import { Colors } from "@/constants/Colors";
+import { SimpleTabBar } from "@/components/SimpleTabBar";
 import { supabase } from "@/utils/supabase";
-import { faTriangleExclamation } from "@fortawesome/free-solid-svg-icons/faTriangleExclamation";
+import { FontAwesome } from "@expo/vector-icons";
 import { faMap } from "@fortawesome/free-solid-svg-icons/faMap";
+import { faTriangleExclamation } from "@fortawesome/free-solid-svg-icons/faTriangleExclamation";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { Session } from "@supabase/supabase-js";
 import { Tabs } from "expo-router";
 import { useEffect, useState } from "react";
-import { FontAwesome } from "@expo/vector-icons";
 
 const TabsLayout = () => {
   const [session, setSession] = useState<Session | null>(null);
@@ -26,6 +26,7 @@ const TabsLayout = () => {
 
   return (
     <Tabs
+      tabBar={(props) => <SimpleTabBar {...props} />}
       screenOptions={{
         headerShown: false,
         headerStyle: {
@@ -34,10 +35,6 @@ const TabsLayout = () => {
         tabBarActiveTintColor: "#4DFFCD",
         tabBarInactiveTintColor: "white",
         headerTintColor: "white",
-        tabBarStyle: {
-          backgroundColor: "#168676",
-          borderTopWidth: 0,
-        },
       }}
     >
       <Tabs.Screen

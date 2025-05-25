@@ -4,6 +4,7 @@ import { formatDateTime } from "@/utils/date";
 import { supabase } from "@/utils/supabase";
 import { FontAwesome, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { Card, Text } from "@rneui/themed";
+import { LinearGradient } from "expo-linear-gradient";
 import { Stack, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
@@ -281,26 +282,24 @@ const AdminScreen = () => {
     <>
       <Stack.Screen options={{ headerShown: false }} />
       <SafeAreaView style={styles.container}>
-        <View style={styles.header}>
-          <View
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              gap: 16,
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
-          >
-            <View
-              style={{ flexDirection: "row", alignItems: "center", gap: 16 }}
-            >
+        <LinearGradient
+          colors={[Colors.light.primaryColor, "#0a5d54", "#083d36"]}
+          style={styles.header}
+        >
+          <View style={styles.headerTop}>
+            <View style={styles.headerLeft}>
               <TouchableOpacity
                 onPress={() => router.back()}
                 style={styles.backButton}
               >
-                <Ionicons name="arrow-back" size={24} color={"white"} />
+                <Ionicons name="arrow-back" size={24} color="white" />
               </TouchableOpacity>
+            </View>
+            <View style={styles.headerCenter}>
               <Text style={styles.headerTitle}>Admin Dashboard</Text>
+              <Text style={styles.headerSubtitle}>
+                Manage all issues ({issues.length} total)
+              </Text>
             </View>
             <TouchableOpacity
               onPress={() => router.push("/admin/merge-issues" as any)}
@@ -309,12 +308,42 @@ const AdminScreen = () => {
               <MaterialIcons name="merge-type" size={20} color="white" />
             </TouchableOpacity>
           </View>
-          <View>
-            <Text style={styles.headerSubtitle}>
-              Manage all issues ({issues.length} total)
-            </Text>
+
+          {/* Admin Stats */}
+          <View style={styles.statsContainer}>
+            <View style={styles.statItem}>
+              <MaterialIcons
+                name="report-problem"
+                size={24}
+                color="rgba(255,255,255,0.9)"
+              />
+              <Text style={styles.statNumber}>{issues.length}</Text>
+              <Text style={styles.statLabel}>Total Issues</Text>
+            </View>
+            <View style={styles.statItem}>
+              <MaterialIcons
+                name="pending"
+                size={24}
+                color="rgba(255,255,255,0.9)"
+              />
+              <Text style={styles.statNumber}>
+                {issues.filter((i) => i.status === "OPEN").length}
+              </Text>
+              <Text style={styles.statLabel}>Open</Text>
+            </View>
+            <View style={styles.statItem}>
+              <MaterialIcons
+                name="check-circle"
+                size={24}
+                color="rgba(255,255,255,0.9)"
+              />
+              <Text style={styles.statNumber}>
+                {issues.filter((i) => i.status === "RESOLVED").length}
+              </Text>
+              <Text style={styles.statLabel}>Resolved</Text>
+            </View>
           </View>
-        </View>
+        </LinearGradient>
 
         {renderStatusFilter()}
 
@@ -350,84 +379,144 @@ const AdminScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: "#f8f9fa",
     marginTop: -25,
   },
   header: {
-    display: "flex",
-    flexDirection: "column",
-    backgroundColor: Colors.light.primaryColor,
-    padding: 20,
     paddingTop: 50,
+    paddingBottom: 30,
+    paddingHorizontal: 20,
+    borderBottomLeftRadius: 25,
+    borderBottomRightRadius: 25,
+  },
+  headerTop: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 4,
+  },
+  headerLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  headerCenter: {
+    flex: 1,
+    alignItems: "center",
   },
   backButton: {
-    marginBottom: 10,
     padding: 8,
-    alignSelf: "flex-start",
+    borderRadius: 20,
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
   },
   mergeButton: {
     backgroundColor: "rgba(255, 255, 255, 0.2)",
-    borderRadius: 8,
-    padding: 8,
+    borderRadius: 12,
+    padding: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4,
   },
   headerTitle: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: "bold",
     color: "white",
     marginBottom: 4,
+    textAlign: "center",
   },
   headerSubtitle: {
     fontSize: 16,
     color: "rgba(255, 255, 255, 0.8)",
+    textAlign: "center",
+  },
+  statsContainer: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    borderRadius: 15,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    marginTop: 10,
+  },
+  statItem: {
+    alignItems: "center",
+    flex: 1,
+  },
+  statNumber: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "white",
+    marginTop: 8,
+    marginBottom: 4,
+  },
+  statLabel: {
+    fontSize: 12,
+    color: "rgba(255, 255, 255, 0.8)",
+    textAlign: "center",
   },
   filterContainer: {
     backgroundColor: "white",
+    marginHorizontal: 20,
+    marginVertical: 16,
     padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "#e0e0e0",
+    borderRadius: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 6,
   },
   filterLabel: {
-    fontSize: 16,
-    fontWeight: "600",
-    marginBottom: 12,
+    fontSize: 18,
+    fontWeight: "700",
+    marginBottom: 16,
     color: "#333",
   },
   filterButtons: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 8,
+    gap: 10,
   },
   filterButton: {
     paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    backgroundColor: "#f0f0f0",
-    borderWidth: 1,
-    borderColor: "#ddd",
+    paddingVertical: 2,
+    borderRadius: 25,
+    backgroundColor: "#f8f9fa",
+    borderWidth: 2,
+    borderColor: "#e9ecef",
   },
   activeFilterButton: {
     backgroundColor: Colors.light.primaryColor,
     borderColor: Colors.light.primaryColor,
+    shadowColor: Colors.light.primaryColor,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 4,
   },
   filterButtonText: {
     fontSize: 14,
     color: "#666",
-    fontWeight: "500",
+    fontWeight: "600",
   },
   activeFilterButtonText: {
     color: "white",
+    fontWeight: "700",
   },
   listContainer: {
-    padding: 16,
+    padding: 20,
   },
   card: {
-    borderRadius: 12,
-    marginBottom: 16,
-    elevation: 3,
+    borderRadius: 16,
+    marginBottom: 10,
+    elevation: 6,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 8,
+    backgroundColor: "white",
   },
   cardHeader: {
     flexDirection: "row",

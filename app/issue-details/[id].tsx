@@ -1,23 +1,21 @@
+import { Colors } from "@/constants/Colors";
 import { formatDateTime } from "@/utils/date";
 import { supabase } from "@/utils/supabase";
-import { MaterialIcons, Ionicons } from "@expo/vector-icons";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { Text } from "@rneui/themed";
-import { useLocalSearchParams, router, Stack } from "expo-router";
+import { LinearGradient } from "expo-linear-gradient";
+import { router, Stack, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Image,
+  SafeAreaView,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
   View,
-  SafeAreaView,
-  Dimensions,
 } from "react-native";
 import MapView, { Marker } from "react-native-maps";
-import { Colors } from "@/constants/Colors";
-
-const { width } = Dimensions.get("window");
 
 interface Issue {
   id: string;
@@ -146,13 +144,17 @@ export default function IssueDetailsScreen() {
 
       <SafeAreaView style={styles.container}>
         {/* Header */}
-        <View style={styles.header}>
+        <LinearGradient
+          colors={[Colors.light.primaryColor, "#0a5d54", "#083d36"]}
+          style={styles.header}
+        >
           <TouchableOpacity
             style={styles.headerBackButton}
             onPress={() => router.back()}
           >
             <Ionicons name="arrow-back" size={24} color="white" />
           </TouchableOpacity>
+
           <View style={styles.headerContent}>
             <Text style={styles.headerTitle} numberOfLines={2}>
               {issue.title}
@@ -171,7 +173,7 @@ export default function IssueDetailsScreen() {
               </Text>
             </View>
           </View>
-        </View>
+        </LinearGradient>
 
         <ScrollView
           style={styles.scrollView}
@@ -378,7 +380,6 @@ const styles = StyleSheet.create({
 
   // Header Styles
   header: {
-    backgroundColor: Colors.light.primaryColor,
     paddingTop: 24,
     paddingBottom: 20,
     paddingHorizontal: 20,

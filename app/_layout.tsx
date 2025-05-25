@@ -7,9 +7,9 @@ import {
 } from "@react-navigation/native";
 import { Session } from "@supabase/supabase-js";
 import { useFonts } from "expo-font";
-import { Stack, usePathname, useRouter } from "expo-router";
+import { Stack, useRouter } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { StyleSheet, useColorScheme } from "react-native";
 
 SplashScreen.preventAutoHideAsync();
@@ -37,8 +37,6 @@ export default function RootLayout() {
     });
   }, []);
 
-  const path = usePathname();
-
   const checkSessionAndRedirect = (session: Session | null) => {
     if (session?.user) return;
 
@@ -54,21 +52,6 @@ export default function RootLayout() {
   useEffect(() => {
     if (loaded) SplashScreen.hideAsync();
   }, [loaded]);
-
-  const getHeaderTitle = useCallback(() => {
-    if (!path) return "UpKeep";
-
-    switch (path) {
-      case "/issues":
-        return "Issues";
-      case "/map":
-        return "Map";
-      case "/profile":
-        return "Profile";
-      default:
-        return "UpKeep";
-    }
-  }, [path]);
 
   if (!loaded) {
     return null;

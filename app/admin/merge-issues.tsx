@@ -2,8 +2,9 @@ import { Colors } from "@/constants/Colors";
 import { useAuth } from "@/provider/AuthProvider";
 import { formatDateTime } from "@/utils/date";
 import { supabase } from "@/utils/supabase";
-import { FontAwesome, Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { Button, CheckBox, Text } from "@rneui/themed";
+import { LinearGradient } from "expo-linear-gradient";
 import { Stack, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
@@ -357,17 +358,25 @@ const MergeIssuesScreen = () => {
     <>
       <Stack.Screen options={{ headerShown: false }} />
       <SafeAreaView style={styles.container}>
-        <View style={styles.header}>
-          <View style={{ flexDirection: "row", alignItems: "center", gap: 24 }}>
-            <TouchableOpacity onPress={() => router.back()}>
-              <Ionicons name="arrow-back" size={24} color={"white"} />
+        <LinearGradient
+          colors={[Colors.light.primaryColor, "#0a5d54", "#083d36"]}
+          style={styles.header}
+        >
+          <View style={styles.headerContent}>
+            <TouchableOpacity
+              onPress={() => router.back()}
+              style={styles.backButton}
+            >
+              <Ionicons name="arrow-back" size={24} color="white" />
             </TouchableOpacity>
-            <Text style={styles.headerTitle}>Merge Issues</Text>
+            <View style={styles.headerTextContainer}>
+              <Text style={styles.headerTitle}>Merge Issues</Text>
+              <Text style={styles.headerSubtitle}>
+                Group related issues together
+              </Text>
+            </View>
           </View>
-          <Text style={styles.headerSubtitle}>
-            Group related issues together
-          </Text>
-        </View>
+        </LinearGradient>
 
         <ScrollView
           style={styles.content}
@@ -487,24 +496,40 @@ const MergeIssuesScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: "#f8f9fa",
   },
   header: {
-    display: "flex",
-    flexDirection: "column",
-    gap: 4,
-    backgroundColor: Colors.light.primaryColor,
-    padding: 20,
+    paddingTop: 30,
+    paddingBottom: 25,
+    paddingHorizontal: 20,
+    borderBottomLeftRadius: 25,
+    borderBottomRightRadius: 25,
+  },
+  headerContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 16,
+  },
+  backButton: {
+    padding: 8,
+    borderRadius: 20,
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
+  },
+  headerTextContainer: {
+    flex: 1,
+    alignItems: "center",
   },
   headerTitle: {
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: "bold",
     color: "white",
-    marginBottom: 4,
+    textAlign: "center",
   },
   headerSubtitle: {
     fontSize: 16,
     color: "rgba(255, 255, 255, 0.8)",
+    textAlign: "center",
+    marginTop: 4,
   },
   content: {
     flex: 1,
@@ -533,24 +558,24 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   section: {
-    margin: 16,
+    margin: 20,
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: "bold",
     color: "#333",
-    marginBottom: 12,
+    marginBottom: 16,
   },
   issueCard: {
     backgroundColor: "white",
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    elevation: 2,
+    borderRadius: 16,
+    padding: 18,
+    marginBottom: 16,
+    elevation: 6,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 8,
   },
   mergedIssueCard: {
     backgroundColor: "#f8f9fa",

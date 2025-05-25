@@ -17,6 +17,8 @@ import {
 } from "react-native";
 import MapView, { Marker, Callout } from "react-native-maps";
 import { MaterialIcons, Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
+import { HeaderLogo } from "@/components/Logo";
 
 const { width, height } = Dimensions.get("window");
 
@@ -195,7 +197,13 @@ const MapScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
-      <View style={styles.header}>
+      <LinearGradient
+        colors={[Colors.light.primaryColor, "#0a5d54", "#083d36"]}
+        style={styles.header}
+      >
+        <View style={styles.headerLeft}>
+          <HeaderLogo />
+        </View>
         <View style={styles.headerContent}>
           <Text style={styles.headerTitle}>Issues Map</Text>
           <Text style={styles.headerSubtitle}>
@@ -206,7 +214,7 @@ const MapScreen = () => {
         <TouchableOpacity style={styles.filterButton} onPress={toggleFilters}>
           <MaterialIcons name="tune" size={24} color="white" />
         </TouchableOpacity>
-      </View>
+      </LinearGradient>
 
       {/* Search Bar */}
       <View style={styles.searchContainer}>
@@ -450,14 +458,17 @@ const styles = StyleSheet.create({
     color: "#666",
   },
   header: {
-    backgroundColor: Colors.light.primaryColor,
-    paddingTop: 24,
+    paddingTop: 30,
     paddingBottom: 20,
     paddingHorizontal: 20,
     flexDirection: "row",
-    alignItems: "flex-end",
+    alignItems: "center",
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
+  },
+  headerLeft: {
+    marginRight: 12,
+    alignSelf: "center",
   },
   headerContent: {
     flex: 1,

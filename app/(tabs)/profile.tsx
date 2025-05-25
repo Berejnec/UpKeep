@@ -17,6 +17,8 @@ import {
   View,
   Dimensions,
 } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { Logo } from "@/components/Logo";
 
 const { width } = Dimensions.get("window");
 
@@ -112,8 +114,14 @@ export default function ProfileScreen() {
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      <View style={styles.headerBackground}>
+      <LinearGradient
+        colors={[Colors.light.primaryColor, "#0a5d54", "#083d36"]}
+        style={styles.headerBackground}
+      >
         <View style={styles.headerContent}>
+          <View style={styles.logoContainer}>
+            <Logo size="small" variant="white" showText={false} />
+          </View>
           <View style={styles.avatarContainer}>
             <TouchableOpacity
               onPress={onSelectImage}
@@ -158,7 +166,7 @@ export default function ProfileScreen() {
             </Text>
           </View>
         </View>
-      </View>
+      </LinearGradient>
 
       <View style={styles.statsCard}>
         <View style={styles.statItem}>
@@ -313,8 +321,7 @@ const styles = StyleSheet.create({
 
   // Header Section
   headerBackground: {
-    backgroundColor: Colors.light.primaryColor,
-    paddingTop: 16,
+    paddingTop: 20,
     paddingBottom: 40,
     paddingHorizontal: 20,
     borderBottomLeftRadius: 30,
@@ -323,6 +330,10 @@ const styles = StyleSheet.create({
   },
   headerContent: {
     alignItems: "center",
+  },
+  logoContainer: {
+    marginBottom: 16,
+    alignSelf: "center",
   },
 
   // Avatar Section

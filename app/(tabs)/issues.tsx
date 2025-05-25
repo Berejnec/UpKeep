@@ -15,6 +15,8 @@ import {
   View,
   Dimensions,
 } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { HeaderLogo } from "@/components/Logo";
 
 const { width } = Dimensions.get("window");
 
@@ -346,7 +348,13 @@ const IssuesScreen = () => {
     return (
       <SafeAreaView style={styles.container}>
         {/* Header */}
-        <View style={styles.header}>
+        <LinearGradient
+          colors={[Colors.light.primaryColor, "#0a5d54", "#083d36"]}
+          style={styles.header}
+        >
+          <View style={styles.headerLeft}>
+            <HeaderLogo />
+          </View>
           <View style={styles.headerContent}>
             <Text style={styles.headerTitle}>Issues</Text>
             <Text style={styles.headerSubtitle}>
@@ -363,7 +371,7 @@ const IssuesScreen = () => {
               color="white"
             />
           </TouchableOpacity>
-        </View>
+        </LinearGradient>
 
         {/* Empty State */}
         <View style={styles.emptyStateContainer}>
@@ -394,7 +402,13 @@ const IssuesScreen = () => {
       <Stack.Screen options={{ headerShown: false }} />
       <SafeAreaView style={styles.container}>
         {/* Header */}
-        <View style={styles.header}>
+        <LinearGradient
+          colors={[Colors.light.primaryColor, "#0a5d54", "#083d36"]}
+          style={styles.header}
+        >
+          <View style={styles.headerLeft}>
+            <HeaderLogo />
+          </View>
           <View style={styles.headerContent}>
             <Text style={styles.headerTitle}>Issues</Text>
             <Text style={styles.headerSubtitle}>
@@ -412,7 +426,7 @@ const IssuesScreen = () => {
               color="white"
             />
           </TouchableOpacity>
-        </View>
+        </LinearGradient>
 
         {/* Content */}
         {loading ? (
@@ -463,16 +477,19 @@ const styles = StyleSheet.create({
 
   // Header Styles
   header: {
-    backgroundColor: Colors.light.primaryColor,
-    paddingTop: 16,
+    paddingTop: 30,
     paddingBottom: 20,
     paddingHorizontal: 20,
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "flex-end",
+    alignItems: "center",
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
     marginBottom: 20,
+  },
+  headerLeft: {
+    marginRight: 12,
+    alignSelf: "center",
   },
   headerContent: {
     flex: 1,

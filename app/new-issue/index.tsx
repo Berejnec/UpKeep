@@ -28,6 +28,7 @@ import uuid from "react-native-uuid";
 import { Image } from "react-native";
 import { decode } from "base64-arraybuffer";
 import * as FileSystem from "expo-file-system";
+import { createNewIssueNotifications } from "@/utils/notifications";
 
 const addIssueSchema = z.object({
   title: z.string().min(5, "Title must be at least 5 characters"),
@@ -163,18 +164,30 @@ export default function AddNewIssueScreen() {
         photoUrl = await uploadImageToSupabase(imageUri);
       }
 
-      const { error } = await supabase.from("issues").insert([
-        {
-          ...data,
-          owner_id: session?.user.id,
-          photo_url: photoUrl,
-        },
-      ]);
+      const { data: insertedIssue, error } = await supabase
+        .from("issues")
+        .insert([
+          {
+            ...data,
+            owner_id: session?.user.id,
+            photo_url: photoUrl,
+          },
+        ])
+        .select()
+        .single();
 
       if (error) {
         console.error(error);
         Alert.alert("Error", "Failed to submit issue. Please try again.");
       } else {
+        // Create notifications for all admin users
+        if (insertedIssue) {
+          await createNewIssueNotifications(
+            insertedIssue.id,
+            insertedIssue.title
+          );
+        }
+
         Alert.alert("Success", "Issue reported successfully!");
         reset();
         setMapRegion(null);

@@ -19,6 +19,7 @@ import {
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Logo } from "@/components/Logo";
+import { getUnreadNotificationCount } from "@/utils/notifications";
 
 const { width } = Dimensions.get("window");
 
@@ -26,6 +27,7 @@ export default function ProfileScreen() {
   const { user, isAdmin } = useAuth();
   const [issueCount, setIssueCount] = useState<number | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [unreadNotifications, setUnreadNotifications] = useState<number>(0);
   const router = useRouter();
 
   useEffect(() => {
@@ -33,7 +35,19 @@ export default function ProfileScreen() {
 
     loadAvatarUrl();
     fetchIssueCount();
+    fetchUnreadNotifications();
   }, [user]);
+
+  const fetchUnreadNotifications = async () => {
+    if (!user?.id) return;
+
+    try {
+      const count = await getUnreadNotificationCount(user.id);
+      setUnreadNotifications(count);
+    } catch (error) {
+      console.error("Error fetching unread notifications:", error);
+    }
+  };
 
   const loadAvatarUrl = async () => {
     if (!user?.id) return;
@@ -159,7 +173,7 @@ export default function ProfileScreen() {
             <MaterialIcons
               name={isAdmin ? "admin-panel-settings" : "person"}
               size={24}
-              color={isAdmin ? "#ff9800" : "#666"}
+              color={isAdmin ? "#ff9800" : "white"}
             />
             <Text style={[styles.roleText, isAdmin && styles.adminRoleText]}>
               {isAdmin ? "Administrator" : "User"}
@@ -284,6 +298,37 @@ export default function ProfileScreen() {
             </View>
           </TouchableOpacity>
         )}
+
+        <TouchableOpacity
+          style={styles.notificationsButton}
+          onPress={() => router.push("/notifications")}
+        >
+          <View style={styles.buttonContent}>
+            <View style={styles.notificationIconContainer}>
+              <Ionicons name="notifications" size={24} color="#168676" />
+              {unreadNotifications > 0 && (
+                <View style={styles.notificationBadge}>
+                  <Text style={styles.notificationBadgeText}>
+                    {unreadNotifications > 99 ? "99+" : unreadNotifications}
+                  </Text>
+                </View>
+              )}
+            </View>
+            <View style={styles.buttonTextContainer}>
+              <Text style={[styles.buttonTitle, { color: "#168676" }]}>
+                Notifications
+              </Text>
+              <Text style={styles.buttonSubtitle}>
+                {unreadNotifications > 0
+                  ? `${unreadNotifications} unread notification${
+                      unreadNotifications > 1 ? "s" : ""
+                    }`
+                  : "View your notifications"}
+              </Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color="#168676" />
+          </View>
+        </TouchableOpacity>
 
         <TouchableOpacity
           style={styles.signOutButton}
@@ -557,6 +602,18 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
   },
+  notificationsButton: {
+    backgroundColor: "white",
+    borderRadius: 16,
+    padding: 16,
+    elevation: 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    borderWidth: 1,
+    borderColor: "#e8f5e8",
+  },
   signOutButton: {
     backgroundColor: "white",
     borderRadius: 16,
@@ -581,6 +638,27 @@ const styles = StyleSheet.create({
   buttonSubtitle: {
     fontSize: 12,
     color: "black",
+  },
+  notificationIconContainer: {
+    position: "relative",
+  },
+  notificationBadge: {
+    position: "absolute",
+    top: -8,
+    right: -8,
+    backgroundColor: "#ff4757",
+    borderRadius: 10,
+    minWidth: 20,
+    height: 20,
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 2,
+    borderColor: "white",
+  },
+  notificationBadgeText: {
+    color: "white",
+    fontSize: 10,
+    fontWeight: "bold",
   },
 
   // Bottom spacing

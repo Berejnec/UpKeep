@@ -18,6 +18,7 @@ import {
   View,
 } from "react-native";
 import MapView, { Marker } from "react-native-maps";
+import { createAdminResponseNotification } from "@/utils/notifications";
 
 interface Issue {
   id: string;
@@ -99,16 +100,30 @@ const AdminIssueManagementScreen = () => {
 
     setUpdating(true);
     try {
+      // Check if admin notes were added or changed
+      const previousAdminNotes = issue.admin_notes || "";
+      const newAdminNotes = adminNotes.trim() || null;
+      const adminNotesChanged = previousAdminNotes !== (newAdminNotes || "");
+
       const { error } = await supabase
         .from("issues")
         .update({
           status: newStatus,
-          admin_notes: adminNotes.trim() || null,
+          admin_notes: newAdminNotes,
           updated_at: new Date().toISOString(),
         })
         .eq("id", issue.id);
 
       if (error) throw error;
+
+      // Create notification for issue owner if admin notes were added/changed
+      if (adminNotesChanged && newAdminNotes) {
+        await createAdminResponseNotification(
+          issue.id,
+          issue.owner_id,
+          issue.title
+        );
+      }
 
       Alert.alert("Success", "Issue updated successfully!");
       fetchIssue(); // Refresh the data

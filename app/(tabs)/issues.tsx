@@ -24,6 +24,7 @@ interface Issue {
   id: string;
   title: string;
   description: string;
+  status: string;
   created_at: string;
   is_merged?: boolean;
   merged_group_title?: string;
@@ -256,7 +257,7 @@ const IssuesScreen = () => {
         <View style={styles.issueFooter}>
           <View style={styles.statusIndicator}>
             <View style={styles.statusDot} />
-            <Text style={styles.statusText}>Open</Text>
+            <Text style={styles.statusText}>{item.status}</Text>
           </View>
           <MaterialIcons name="chevron-right" size={20} color="#ccc" />
         </View>

@@ -30,6 +30,7 @@ import { Image } from "react-native";
 import { decode } from "base64-arraybuffer";
 import * as FileSystem from "expo-file-system";
 import { createNewIssueNotifications } from "@/utils/notifications";
+import { LinearGradient } from "expo-linear-gradient";
 
 const categories = [
   { id: "road", name: "Road", icon: "directions-car" },
@@ -231,20 +232,25 @@ export default function AddNewIssueScreen() {
       <Stack.Screen options={{ headerShown: false }} />
       <SafeAreaView style={styles.container}>
         {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => router.back()}
-          >
-            <Ionicons name="arrow-back" size={24} color="white" />
-          </TouchableOpacity>
-          <View style={styles.headerContent}>
-            <Text style={styles.headerTitle}>Report Issue</Text>
-            <Text style={styles.headerSubtitle}>
-              Help improve your community
-            </Text>
+        <LinearGradient
+          colors={[Colors.light.primaryColor, "#0a5d54", "#083d36"]}
+          style={styles.header}
+        >
+          <View style={styles.header}>
+            <TouchableOpacity
+              style={styles.backButton}
+              onPress={() => router.back()}
+            >
+              <Ionicons name="arrow-back" size={24} color="white" />
+            </TouchableOpacity>
+            <View style={styles.headerContent}>
+              <Text style={styles.headerTitle}>Report Issue</Text>
+              <Text style={styles.headerSubtitle}>
+                Help improve your community
+              </Text>
+            </View>
           </View>
-        </View>
+        </LinearGradient>
 
         <ScrollView
           style={styles.scrollView}
@@ -574,17 +580,16 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#f8f9fa",
   },
-
-  // Header Styles
   header: {
-    backgroundColor: Colors.light.primaryColor,
-    paddingTop: 24,
-    paddingBottom: 20,
-    paddingHorizontal: 20,
+    paddingTop: 10,
+    paddingBottom: 10,
+    paddingHorizontal: 10,
     flexDirection: "row",
-    alignItems: "flex-end",
+    justifyContent: "space-between",
+    alignItems: "center",
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
+    marginBottom: 10,
   },
   backButton: {
     width: 40,

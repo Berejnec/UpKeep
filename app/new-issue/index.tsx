@@ -16,6 +16,7 @@ import {
   View,
   SafeAreaView,
   Dimensions,
+  Modal,
 } from "react-native";
 import { MaterialIcons, Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/Colors";
@@ -29,6 +30,15 @@ import { Image } from "react-native";
 import { decode } from "base64-arraybuffer";
 import * as FileSystem from "expo-file-system";
 import { createNewIssueNotifications } from "@/utils/notifications";
+
+const categories = [
+  { id: "road", name: "Road", icon: "directions-car" },
+  { id: "lighting", name: "Lighting", icon: "lightbulb" },
+  { id: "waste", name: "Waste", icon: "delete" },
+  { id: "water", name: "Water", icon: "water-drop" },
+  { id: "safety", name: "Safety", icon: "security" },
+  { id: "other", name: "Other", icon: "more-horiz" },
+];
 
 const addIssueSchema = z.object({
   title: z.string().min(5, "Title must be at least 5 characters"),
@@ -68,6 +78,22 @@ export default function AddNewIssueScreen() {
   const [locationLoading, setLocationLoading] = useState(false);
   const [session, setSession] = useState<Session | null>(null);
   const [imageUri, setImageUri] = useState<string | null>(null);
+  const [categoryModalVisible, setCategoryModalVisible] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
+
+  const handleCategorySelect = (
+    categoryId: string,
+    onChange: (value: string) => void
+  ) => {
+    setSelectedCategory(categoryId);
+    onChange(categoryId);
+    setCategoryModalVisible(false);
+  };
+
+  const getCategoryDisplayName = (categoryId: string) => {
+    const category = categories.find((cat) => cat.id === categoryId);
+    return category ? category.name : "";
+  };
 
   const getCurrentLocation = async () => {
     setLocationLoading(true);
@@ -302,21 +328,32 @@ export default function AddNewIssueScreen() {
                 control={control}
                 name="category"
                 render={({ field: { onChange, value } }) => (
-                  <View style={styles.inputContainer}>
+                  <TouchableOpacity
+                    style={styles.categorySelector}
+                    onPress={() => setCategoryModalVisible(true)}
+                  >
                     <MaterialIcons
                       name="category"
                       size={20}
                       color="#666"
                       style={styles.inputIcon}
                     />
-                    <TextInput
-                      placeholder="e.g., Road, Lighting, Waste Management"
-                      style={styles.input}
-                      onChangeText={onChange}
-                      value={value}
-                      placeholderTextColor="#999"
+                    <Text
+                      style={[
+                        styles.categorySelectorText,
+                        !value && styles.placeholderText,
+                      ]}
+                    >
+                      {value
+                        ? getCategoryDisplayName(value)
+                        : "Select a category"}
+                    </Text>
+                    <MaterialIcons
+                      name="keyboard-arrow-down"
+                      size={20}
+                      color="#666"
                     />
-                  </View>
+                  </TouchableOpacity>
                 )}
               />
               {errors.category && (
@@ -473,6 +510,60 @@ export default function AddNewIssueScreen() {
           {/* Bottom Spacing */}
           <View style={styles.bottomSpacing} />
         </ScrollView>
+
+        {/* Category Selection Modal */}
+        <Modal
+          visible={categoryModalVisible}
+          transparent={true}
+          animationType="slide"
+          onRequestClose={() => setCategoryModalVisible(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <View style={styles.modalHeader}>
+                <Text style={styles.modalTitle}>Select Category</Text>
+                <TouchableOpacity
+                  onPress={() => setCategoryModalVisible(false)}
+                  style={styles.modalCloseButton}
+                >
+                  <MaterialIcons name="close" size={24} color="#666" />
+                </TouchableOpacity>
+              </View>
+
+              <Controller
+                control={control}
+                name="category"
+                render={({ field: { onChange } }) => (
+                  <ScrollView style={styles.categoryList}>
+                    {categories.map((category) => (
+                      <TouchableOpacity
+                        key={category.id}
+                        style={styles.categoryOption}
+                        onPress={() =>
+                          handleCategorySelect(category.id, onChange)
+                        }
+                      >
+                        <MaterialIcons
+                          name={category.icon as any}
+                          size={24}
+                          color={Colors.light.primaryColor}
+                        />
+                        <Text style={styles.categoryOptionText}>
+                          {category.name}
+                        </Text>
+                        <MaterialIcons
+                          name="chevron-right"
+                          size={20}
+                          color="#ccc"
+                        />
+                      </TouchableOpacity>
+                    ))}
+                  </ScrollView>
+                )}
+              />
+            </View>
+          </View>
+        </Modal>
       </SafeAreaView>
     </>
   );
@@ -709,6 +800,71 @@ const styles = StyleSheet.create({
     height: 32,
     justifyContent: "center",
     alignItems: "center",
+  },
+
+  // Category Selector Styles
+  categorySelector: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#f8f9fa",
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#e9ecef",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  categorySelectorText: {
+    flex: 1,
+    fontSize: 16,
+    color: "#333",
+  },
+  placeholderText: {
+    color: "#999",
+  },
+
+  // Modal Styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "flex-end",
+  },
+  modalContent: {
+    backgroundColor: "white",
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    maxHeight: "70%",
+  },
+  modalHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: "#f0f0f0",
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#333",
+  },
+  modalCloseButton: {
+    padding: 4,
+  },
+  categoryList: {
+    maxHeight: 400,
+  },
+  categoryOption: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: "#f0f0f0",
+  },
+  categoryOptionText: {
+    flex: 1,
+    fontSize: 16,
+    color: "#333",
+    marginLeft: 12,
   },
 
   // Spacing
